@@ -101,11 +101,28 @@
         "type": "github"
       }
     },
+    "plugins-nvim-dev-container": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1763393325,
+        "narHash": "sha256-N2m4AxjvcBlnkkfujdoHx/QJpoA/BYOg/DWY7X8TQgI=",
+        "owner": "esensar",
+        "repo": "nvim-dev-container",
+        "rev": "59d85de531912c3def3061ae1d84c769e09a5653",
+        "type": "github"
+      },
+      "original": {
+        "owner": "esensar",
+        "repo": "nvim-dev-container",
+        "type": "github"
+      }
+    },
     "root": {
       "inputs": {
         "nixCats": "nixCats",
         "nixpkgs": "nixpkgs",
-        "nvim-treesitter-main": "nvim-treesitter-main"
+        "nvim-treesitter-main": "nvim-treesitter-main",
+        "plugins-nvim-dev-container": "plugins-nvim-dev-container"
       }
     }
   },

@@ -1,52 +1,25 @@
-# Copyright (c) 2023 BirdeeHub
-# Licensed under the MIT license
-
-# This is an empty nixCats config.
-# you may import this template directly into your nvim folder
-# and then add plugins to categories here,
-# and call the plugins with their default functions
-# within your lua, rather than through the nvim package manager's method.
-# Use the help, and the example config github:BirdeeHub/nixCats-nvim?dir=templates/example
-
-# It allows for easy adoption of nix,
-# while still providing all the extra nix features immediately.
-# Configure in lua, check for a few categories, set a few settings,
-# output packages with combinations of those categories and settings.
-
-# All the same options you make here will be automatically exported in a form available
-# in home manager and in nixosModules, as well as from other flakes.
-# each section is tagged with its relevant help section.
-
 {
-  description = "A Lua-natic's neovim flake, with extra cats! nixCats!";
+  description = "neovim config using nixCats";
 
   inputs = {
+    # see :help nixCats.flake.inputs
     nixpkgs.url = "github:nixos/nixpkgs/nixpkgs-unstable";
     nixCats.url = "github:BirdeeHub/nixCats-nvim";
     nvim-treesitter-main.url = "github:iofq/nvim-treesitter-main";
+    # neovim-nightly-overlay.url = "github:nix-community/neovim-nightly-overlay";
 
-    # neovim-nightly-overlay = {
-    #   url = "github:nix-community/neovim-nightly-overlay";
-    # };
-
-    # see :help nixCats.flake.inputs
-    # If you want your plugin to be loaded by the standard overlay,
-    # i.e. if it wasnt on nixpkgs, but doesnt have an extra build step.
-    # Then you should name it "plugins-something"
-    # If you wish to define a custom build step not handled by nixpkgs,
-    # then you should name it in a different format, and deal with that in the
-    # overlay defined for custom builds in the overlays directory.
-    # for specific tags, branches and commits, see:
-    # https://nixos.org/manual/nix/stable/command-ref/new-cli/nix3-flake.html#examples
-
+    "plugins-nvim-dev-container" = {
+      url = "github:esensar/nvim-dev-container";
+      flake = false;
+    };
   };
 
   # see :help nixCats.flake.outputs
   outputs =
     {
-      self,
       nixpkgs,
       nixCats,
+      nvim-treesitter-main,
       ...
     }@inputs:
     let
@@ -86,7 +59,7 @@
           # (utils.fixSystemizedOverlay inputs.codeium.overlays
           #   (system: inputs.codeium.overlays.${system}.default)
           # )
-          inputs.nvim-treesitter-main.overlays.default
+          nvim-treesitter-main.overlays.default
           (final: prev: {
             vimPlugins = prev.vimPlugins.extend (
               f: p: {
@@ -151,60 +124,59 @@
                 yaml-language-server
               ]
               ++ [
-
+                mermaid-cli # for snacks.image
+                tree-sitter # for nvim-treesitter
               ];
           };
 
           # This is for plugins that will load at startup without using packadd:
           startupPlugins = {
             #TODO:nvim-dap nvim-dap-ui nvim-dap-virtual-text
-            general = with pkgs.vimPlugins; [
-              luasnip
-              SchemaStore-nvim
-              blink-cmp
-              clangd_extensions-nvim
-              colorful-menu-nvim
-              conform-nvim
-              fidget-nvim
-              friendly-snippets
-              gitsigns-nvim
-              lualine-nvim
-              mini-ai
-              mini-surround
-              nvim-autopairs
-              #nvim-dev-container
-              nvim-lint
-              nvim-lspconfig
-              nvim-treesitter
-              nvim-treesitter-textobjects
-              nvim-treesitter-context
-              nvim-web-devicons
-              oil-nvim
-              onedarkpro-nvim
-              plenary-nvim
-              precognition-nvim
-              rainbow-delimiters-nvim
-              render-markdown-nvim
-              snacks-nvim
-              todo-comments-nvim
-              #tree-sitter-ghostty
-              trouble-nvim
-              ts-comments-nvim
-              typst-preview-nvim
-              vim-be-good
-              vim-dadbod
-              vim-dadbod-completion
-              vim-dadbod-ui
-              vim-wakatime
-              which-key-nvim
-              ts-comments-nvim
-              typst-preview-nvim
-              vim-be-good
-              vim-dadbod
-              vim-dadbod-completion
-              vim-dadbod-ui
-              vim-wakatime
-            ];
+            general =
+              with pkgs.vimPlugins;
+              [
+                #nvim-dev-container
+                #tree-sitter-ghostty
+                SchemaStore-nvim
+                blink-cmp
+                clangd_extensions-nvim
+                colorful-menu-nvim
+                conform-nvim
+                fidget-nvim
+                friendly-snippets
+                gitsigns-nvim
+                lazydev-nvim
+                lualine-nvim
+                luasnip
+                mini-ai
+                mini-surround
+                nvim-autopairs
+                nvim-lint
+                nvim-lspconfig
+                nvim-treesitter
+                nvim-treesitter-context
+                nvim-treesitter-textobjects
+                nvim-web-devicons
+                oil-nvim
+                onedarkpro-nvim
+                precognition-nvim
+                rainbow-delimiters-nvim
+                render-markdown-nvim
+                snacks-nvim
+                todo-comments-nvim
+                trouble-nvim
+                ts-comments-nvim
+                typst-preview-nvim
+                vim-be-good
+                vim-dadbod
+                vim-dadbod-completion
+                vim-dadbod-ui
+                vim-wakatime
+                which-key-nvim
+              ]
+              ++ (with pkgs.neovimPlugins; [
+                nvim-dev-container
+              ]);
           };
 
           # not loaded automatically at startup.
@@ -213,7 +185,6 @@
             general = with pkgs.vimPlugins; [
               nvim-jdtls
               rustaceanvim
-              lazydev-nvim
               vimtex
             ];
           };
@@ -283,10 +254,6 @@
               # your alias may not conflict with your other packages.
               # aliases = [ "vim" ];
               # neovim-unwrapped = inputs.neovim-nightly-overlay.packages.${pkgs.stdenv.hostPlatform.system}.neovim;
-              hosts.python3.enable = false;
-              hosts.node.enable = false;
-              hosts.ruby.enable = false;
-              hosts.perl.enable = false;
             };
             # and a set of categories that you want
             # (and other information to pass to lua)
@@ -382,7 +349,6 @@
 
         inherit utils nixosModule homeModule;
         inherit (utils) templates;
-
       }
     );
 }
