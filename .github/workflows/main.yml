@@ -22,5 +22,7 @@ jobs:
         uses: DeterminateSystems/determinate-nix-action@v3.15.1
       - name: Use Action cache
         uses: DeterminateSystems/magic-nix-cache-action@main
+        with:
+          diff-store: true
       - name: Build default package
         run: nix build
