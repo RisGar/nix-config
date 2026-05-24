@@ -18,7 +18,6 @@
       nvim-config,
       self,
       virby,
-      nix-openclaw,
       ocrtool-mcp,
       stylix,
       ...
@@ -93,7 +92,6 @@
         modules = [
           disko.nixosModules.default
           agenix.nixosModules.default
-          nix-openclaw.nixosModules.openclaw-gateway
 
           ./hosts/homelab
 
@@ -102,7 +100,6 @@
           }
         ];
         specialArgs = {
-          # inherit nix-openclaw;
         };
       };
     };
@@ -152,11 +149,6 @@
     };
     direnv-instant = {
       url = "github:Mic92/direnv-instant";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
-    nix-openclaw = {
-      url = "github:openclaw/nix-openclaw";
-      inputs.home-manager.follows = "home-manager";
       inputs.nixpkgs.follows = "nixpkgs";
     };
     ocrtool-mcp = {
