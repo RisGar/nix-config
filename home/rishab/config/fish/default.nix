@@ -108,9 +108,9 @@ in
     generateCompletions = true;
 
     shellInit = ''
-      set -gx CONTEXT7_API_KEY (string trim (cat ${config.age.secrets.context7.path}))
-      set -gx TAVILY_API_KEY (string trim (cat ${config.age.secrets.tavily.path}))
-      set -gx OPENROUTER_API_KEY (string trim (cat ${config.age.secrets.openrouter.path}))
+      set -gx CONTEXT7_API_KEY (string trim < ${config.age.secrets.context7.path})
+      set -gx TAVILY_API_KEY (string trim < ${config.age.secrets.tavily.path})
+      set -gx OPENROUTER_API_KEY (string trim < ${config.age.secrets.openrouter.path})
 
       set fzf_preview_dir_cmd ${lib.getExe config.programs.eza.package} --all --color=always
       set fzf_fd_opts --hidden --exclude=.git
