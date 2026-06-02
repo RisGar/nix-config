@@ -151,6 +151,8 @@ git:
   truncateCopiedCommitHashesTo: 12
   allBranchesLogCmds:
     - git log --graph --all --color=always --abbrev-commit --decorate --date=relative  --pretty=medium
+  # Allow rewording with gpg agent
+  overrideGpg: true
 # Periodic update checks
 update:
   # One of: 'prompt' (default) | 'background' | 'never'
