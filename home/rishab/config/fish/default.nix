@@ -57,7 +57,7 @@ in
     VISUAL = lib.getExe pkgs.nvim;
     MANPAGER = (lib.getExe pkgs.nvim) + " +Man!";
 
-    PAGER = lib.getExe pkgs.ov;
+    PAGER = lib.getExe pkgs.less;
 
     # MACOSX_DEPLOYMENT_TARGET = 15;
 
@@ -168,29 +168,6 @@ in
         '';
       };
 
-      nix-sri-hash = {
-        description = "Fetches SRI hash for a remote URL";
-        body = ''
-          set -l prefetch_args --type sha256
-
-          switch "$argv[1]"
-            case -u --unpack
-              set prefetch_args $prefetch_args --unpack
-              set -e argv[1]
-          end
-
-          if test (count $argv) -ne 1
-            echo "Usage: nix-sri-hash [-u|--unpack] <url>" >&2
-            return 1
-          end
-
-          set -l hash (nix-prefetch-url $prefetch_args "$argv[1]")
-          or return $status
-
-          nix hash to-sri --type sha256 "$hash"
-        '';
-      };
-
       # Fastfetch on greeting
       fish_greeting = {
         body = if autoStartFastfetch then lib.getExe config.programs.fastfetch.package else "";
@@ -226,11 +203,11 @@ in
     };
     plugins = [
       {
-        name = "fzf.fish";
-        src = pkgs.fishPlugins.fzf-fish.src;
+        name = "done";
+        src = pkgs.fishPlugins.done.src;
       }
       {
-        name = "autopair.fish";
+        name = "autopair";
         src = pkgs.fishPlugins.autopair-fish.src;
       }
       {

@@ -5,13 +5,7 @@
   ...
 }:
 let
-  fromYAML =
-    p:
-    builtins.fromJSON
-    <| builtins.readFile
-    <| pkgs.runCommand "from-yaml" {
-      nativeBuildInputs = [ pkgs.remarshal ];
-    } "remarshal -if yaml -i \"${p}\" -of json -o \"$out\"";
+  delta = lib.getExe config.programs.delta.package;
 in
 {
   home.file.".ssh/git_allowed_signers".text =
@@ -23,7 +17,6 @@ in
     signing = {
       signByDefault = true;
       format = "ssh";
-      # key = "9ADCCDF12AEBD8B8"; # PGP
       key = "key::ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIKmBZ3bwIN+dktLVqVRq8DxFuz8Obm0dEt3wr1+ahTHQ";
     };
 
@@ -36,34 +29,11 @@ in
       };
 
       gpg.ssh = {
-        allowedSignersFile = " ~/.ssh/git_allowed_signers";
+        allowedSignersFile = "${config.home.homeDirectory}/.ssh/git_allowed_signers";
       };
 
       core = {
-        editor = "nvim";
-        pager = "${lib.getExe config.programs.delta.package} --pager='ov -F'";
-      };
-
-      interactive = {
-        diffFilter = "${lib.getExe config.programs.delta.package} --color-only";
-      };
-
-      pager = {
-        show = "${lib.getExe config.programs.delta.package} --pager='ov -F --header 3'";
-        diff = "${lib.getExe config.programs.delta.package} --features ov-diff";
-        log = "${lib.getExe config.programs.delta.package} --features ov-log";
-      };
-
-      delta = {
-        navigate = true;
-        dark = true;
-        side-by-side = true;
-        "ov-diff" = {
-          pager = "ov -F --section-delimiter '^(commit|added:|removed:|renamed:|Δ)' --section-header --pattern '•'";
-        };
-        "ov-log" = {
-          pager = "ov -F --section-delimiter '^commit' --section-header-num 3";
-        };
+        editor = lib.getExe pkgs.nvim;
       };
 
       merge = {
@@ -95,12 +65,23 @@ in
 
   programs.delta = {
     enable = true;
+    enableGitIntegration = true;
+    options = {
+      navigate = true;
+      dark = true;
+      side-by-side = true;
+    };
+    # TODO: jujutsu
   };
 
   # xdg.configFile."lazygit/config.yml".source = ./lazygit.yml;
   programs.lazygit = {
     enable = true;
-    settings = fromYAML ./lazygit.yml;
+    settings = {
+      git = {
+        overrideGpg = true;
+      };
+    };
   };
 
   programs.gh = {

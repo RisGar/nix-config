@@ -112,7 +112,6 @@
         nixos-rebuild
         numi
         obsidian # TODO: home manager
-        ov
         # papers
         pkgconf
         podman
@@ -174,9 +173,6 @@
 
     programs.bat = {
       enable = true;
-      config = {
-        pager = "${lib.getExe pkgs.ov} -F -H4";
-      };
     };
 
     programs.fd = {
