@@ -16,6 +16,10 @@
   nixpkgs.config = {
     allowBroken = true;
     allowUnfree = true;
+    permittedInsecurePackages = [
+      # TODO: remove when fixed
+      "electron-39.8.10"
+    ];
   };
 
   nixpkgs.hostPlatform = "aarch64-darwin";
@@ -188,7 +192,7 @@
           app = "${pkgs.obsidian}/Applications/Obsidian.app";
         }
         {
-          app = "${pkgs.logseq}/applications/Logseq.app";
+          app = "${pkgs.logseq}/Applications/Logseq.app";
         }
         {
           app = "/System/Applications/Mail.app";

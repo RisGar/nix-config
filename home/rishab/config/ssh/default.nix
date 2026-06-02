@@ -13,75 +13,73 @@
   programs.ssh = {
     enable = true;
     enableDefaultConfig = false;
-    matchBlocks = {
-      "*" = {
-        identityAgent = config.home.homeDirectory + "/.strongbox/agent.sock";
-        extraOptions = {
-          StrictHostKeyChecking = "accept-new";
-        };
+    settings = {
+      "Host *" = {
+        IdentityAgent = config.home.homeDirectory + "/.strongbox/agent.sock";
+        StrictHostKeyChecking = "accept-new";
       };
 
       # TODO
       "hostinger" = {
-        hostname = "89.117.169.136";
-        user = "u797478303";
-        port = 65002;
-        identityFile = "~/.ssh/hostinger";
-        serverAliveInterval = 240;
+        Hostname = "89.117.169.136";
+        User = "u797478303";
+        Port = 65002;
+        IdentityFile = "~/.ssh/hostinger";
+        ServerAliveInterval = 240;
       };
 
       "gargnas" = {
-        hostname = "gargnas.internal";
-        user = "Rishab";
-        port = 223;
+        Hostname = "gargnas.internal";
+        User = "Rishab";
+        Port = 223;
       };
 
       "lxhalle" = {
-        hostname = "lxhalle.cit.tum.de";
-        user = "gargr";
+        Hostname = "lxhalle.cit.tum.de";
+        User = "gargr";
       };
 
       "proxmox" = {
-        hostname = "proxmox.internal";
-        user = "root";
+        Hostname = "proxmox.internal";
+        User = "root";
       };
 
       "debian" = {
-        hostname = "debian.internal";
-        user = "docker";
+        Hostname = "debian.internal";
+        User = "docker";
       };
 
       "homelab" = {
-        hostname = "homelab.internal";
-        user = "rishab";
+        Hostname = "homelab.internal";
+        User = "rishab";
       };
 
       "valhalla" = {
-        hostname = "valhalla.fs.tum.de";
-        user = "garg";
+        Hostname = "valhalla.fs.tum.de";
+        User = "garg";
       };
 
       "itsec" = {
-        hostname = "sandkasten.sec.in.tum.de";
-        user = "team-263";
+        Hostname = "sandkasten.sec.in.tum.de";
+        User = "team-263";
       };
 
       "pangolin" = {
-        hostname = "85.215.138.48";
-        user = "root";
+        Hostname = "85.215.138.48";
+        User = "root";
       };
 
       "psa" = {
-        hostname = "psa.in.tum.de";
-        user = "go57siq";
-        forwardX11Trusted = true;
+        Hostname = "psa.in.tum.de";
+        User = "go57siq";
+        ForwardX11Trusted = true;
       };
 
       "grnvs" = {
-        hostname = "testbed.grnvs.net.cit.tum.de";
-        user = "u64829";
-        port = 10022;
-        forwardAgent = true;
+        Hostname = "testbed.grnvs.net.cit.tum.de";
+        User = "u64829";
+        Port = 10022;
+        ForwardAgent = true;
       };
     };
   };
