@@ -112,11 +112,6 @@ in
       set -gx TAVILY_API_KEY (string trim < ${config.age.secrets.tavily.path})
       set -gx OPENROUTER_API_KEY (string trim < ${config.age.secrets.openrouter.path})
 
-      set fzf_preview_dir_cmd ${lib.getExe config.programs.eza.package} --all --color=always
-      set fzf_fd_opts --hidden --exclude=.git
-
-      fzf_configure_bindings --directory=\cf
-
       set fish_cursor_default block blink
       set fish_cursor_insert line blink
       set fish_cursor_replace_one underscore blink

@@ -98,16 +98,4 @@
     };
   };
 
-  programs.fzf.colors = with config.lib.stylix.colors.withHashtag; {
-    "bg+" = base01;
-    spinner = base0C;
-    hl = base0D;
-    header = base0D;
-    info = base0A;
-    pointer = base0C;
-    marker = base0C;
-    prompt = base0A;
-    "hl+" = base0D;
-  };
-
 }

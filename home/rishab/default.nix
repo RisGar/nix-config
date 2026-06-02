@@ -21,7 +21,7 @@
     ./config/captive-browser # TODO: replace with dnscypt proxy forwarding of firefox default captive portal getter site
     ./config/fastfetch
     ./config/fish
-    ./config/fzf
+    ./config/fuzzy
     ./config/git
     ./config/java
     ./config/ssh
