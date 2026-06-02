@@ -23,8 +23,6 @@ Always prefer these tools over `nix search` or web scraping, as they provide str
 
 ## Context7 Documentation
 
-<!-- context7 -->
-
 Use the `ctx7` CLI to fetch current documentation whenever the user asks about a library, framework, SDK, API, CLI tool, or cloud service -- even well-known ones like React, Next.js, Prisma, Express, Tailwind, Django, or Spring Boot. This includes API syntax, configuration, version migration, library-specific debugging, setup instructions, and CLI tool usage. Use even when you think you know the answer -- your training data may not reflect recent changes. Prefer this over web search for library docs.
 
 Do not use for: refactoring, writing scripts from scratch, debugging business logic, code review, or general programming concepts.
@@ -42,8 +40,6 @@ You MUST call `library` first to get a valid ID unless the user provides one dir
 For version-specific docs, use `/org/project/version` from the `library` output (e.g., `/vercel/next.js/v14.3.0`).
 
 If a command fails with a quota error, inform the user and suggest `npx ctx7@latest login` or setting `CONTEXT7_API_KEY` env var for higher limits. Do not silently fall back to training data.
-
-<!-- context7 -->
 
 ## Mission
 
@@ -74,12 +70,15 @@ Run from repo root: `/private/etc/nix-darwin`.
   - `nix flake check --print-build-logs`
 - Build macOS config without switching:
   - `sudo -i darwin-rebuild build --flake .#Rishabs-MacBook-Pro`
-- Switch/apply macOS config:
-  - `sudo -i darwin-rebuild switch --flake .#Rishabs-MacBook-Pro`
+- Switch/apply macOS config (USER ONLY - AGENT MUST NEVER RUN THIS OR `darwin-rebuild switch`):
+  - `reload`
 - Build homelab config without switching:
   - `nix build .#nixosConfigurations.Rishabs-Homelab.config.system.build.toplevel`
-- Switch homelab config locally/remotely (as configured in fish aliases):
+- Switch homelab config locally/remotely (USER ONLY - AGENT MUST NEVER RUN THIS):
   - `nixos-rebuild switch --flake .#Rishabs-Homelab --target-host homelab --sudo`
+
+> [!IMPORTANT]
+> **AGENTS MUST NEVER APPLY OR SWITCH CONFIGURATIONS.** Only validate builds (`darwin-rebuild build` or `nix build ...toplevel`). Always prompt the user to manually run `reload` or `nixos-rebuild switch` once the build succeeds.
 
 ## Lint / Format Commands
 
