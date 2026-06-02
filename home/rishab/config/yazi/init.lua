@@ -21,4 +21,4 @@ require("mactag"):setup({
 	order = 500,
 })
 
-require("starship"):setup()
+require("full-border"):setup()

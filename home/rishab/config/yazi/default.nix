@@ -1,4 +1,5 @@
 {
+  options,
   pkgs,
   ...
 }:
@@ -6,6 +7,15 @@
   programs.yazi = {
     enable = true;
     shellWrapperName = "y";
+    package = options.programs.yazi.package.default.override {
+      extraPackages = with pkgs; [
+        exiftool
+        clippy-mac
+        ffmpeg
+        mediainfo
+        imagemagick
+      ];
+    };
     keymap = {
       mgr.prepend_keymap = [
         {
@@ -46,11 +56,11 @@
 
     plugins = {
       inherit (pkgs.yaziPlugins)
+        full-border
         clippy
         mactag
         chmod
         mediainfo
-        starship
         ;
     };
 
@@ -213,13 +223,4 @@
       };
     };
   };
-
-  # Requirements
-  home.packages = with pkgs; [
-    clippy-mac
-    ffmpeg
-    mediainfo
-    imagemagick
-    starship
-  ];
 }
