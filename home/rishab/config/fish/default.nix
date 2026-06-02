@@ -30,9 +30,7 @@ in
     nixrepl = "nix repl --expr '{inherit (import <nixpkgs> {}) pkgs lib;}'";
     nixtree = "nix-tree --derivation \"${config.vars.systemFlake}#darwinConfigurations.Rishabs-MacBook-Pro.config.system.build.toplevel\"";
 
-    spotify-dlp = "yt-dlp --config-locations ~/.config/yt-dlp/config-spotify";
-
-    gbs = "podman run -it -v $(pwd):/home gitlab.lrz.de:5005/gbs-cm/docker-setup/gbs-arm64:latest";
+    spotify-dlp = "yt-dlp -f \"ba[ext=m4a]\" -x --audio-format m4a --embed-thumbnail --embed-metadata --sponsorblock-remove music_offtopic -o \"~/Music/Spotify/%(artist,uploader)s - %(title)s.%(ext)s\"";
 
     reload-homelab = "${lib.getExe pkgs.nixos-rebuild} switch --flake ${config.vars.systemFlake}#Rishabs-Homelab --target-host homelab --sudo";
     reload-homelab-local = "${lib.getExe pkgs.nixos-rebuild} switch --flake ${config.vars.systemFlake}#Rishabs-Homelab --target-host 192.168.178.42 --sudo";
