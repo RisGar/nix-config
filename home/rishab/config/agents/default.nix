@@ -70,6 +70,9 @@
         showModelInfoInChat = true;
         loadingPhrases = "tips";
       };
+      experimental = {
+        worktrees = true;
+      };
     };
   };
 
