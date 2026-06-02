@@ -69,6 +69,7 @@
       with pkgs;
       [
         # xquartz
+        mediainfo
         dragterm
         signal-desktop
         nvim
@@ -221,10 +222,6 @@
 
     programs.vesktop = {
       enable = true;
-    };
-
-    programs.man = {
-      generateCaches = false;
     };
 
     gtk = {
