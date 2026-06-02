@@ -69,7 +69,6 @@
       with pkgs;
       [
         # xquartz
-        # lumaglass
         dragterm
         signal-desktop
         nvim
