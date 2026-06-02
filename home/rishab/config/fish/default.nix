@@ -10,7 +10,13 @@ let
 in
 {
 
-  xdg.enable = true;
+  xdg = {
+    enable = true;
+    userDirs = {
+      enable = true;
+      projects = "${config.xdg.userDirs.documents}/Programming";
+    };
+  };
   home.preferXdgDirectories = true;
 
   home.shellAliases = {
