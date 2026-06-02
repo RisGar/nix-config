@@ -31,7 +31,7 @@
     (final: prev: {
       clippy-mac = prev.callPackage ../../pkgs/clippy-mac.nix { };
       thaw = prev.callPackage ../../pkgs/thaw.nix { };
-      mole-mac = prev.callPackage ../../pkgs/mole-mac.nix { };
+      mole-mac = prev.callPackage ../../pkgs/mole-mac.nix { }; # TODO: fix
       dragterm = prev.callPackage ../../pkgs/dragterm.nix { };
 
       inherit (prev.lixPackageSets.stable)
