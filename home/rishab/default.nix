@@ -126,7 +126,6 @@
         suspicious-package
         terminal-notifier
         thaw
-        tlrc # tldr rust client
         tokei
         typst
         unison-ucm
@@ -267,6 +266,11 @@
         "--classify=always"
         "--group-directories-first"
       ];
+    };
+
+    programs.man = {
+      # Prevent warning that man is null
+      generateCaches = false;
     };
   };
 }
