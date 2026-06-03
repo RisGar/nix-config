@@ -48,6 +48,26 @@
           run = "plugin chmod";
           desc = "Chmod on selected files";
         }
+
+        {
+          on = [ "<C-n>" ];
+          run = "shell -- drag %h";
+          desc = "open in dragterm";
+        }
+        {
+          on = [ "<C-p>" ];
+          run = "shell -- qlmanage -p %s";
+          desc = "open in quicklook";
+        }
+
+        {
+          on = [
+            "g"
+            "r"
+          ];
+          run = "shell -- ya emit cd '$(git rev-parse --show-toplevel)'";
+          desc = "go to git root";
+        }
       ];
     };
 
