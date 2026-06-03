@@ -13,7 +13,7 @@ in
     mouse = false;
     prefix = "C-a";
     extraConfig = ''
-      set -g default-terminal "screen-256color"
+      set -g default-terminal "tmux-256color"
       set -a terminal-features "tmux-256color:RGB:cnorm=\E[?12h\E[?25h"
 
       set -g base-index 1
