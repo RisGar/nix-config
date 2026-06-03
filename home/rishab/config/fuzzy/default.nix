@@ -1,8 +1,14 @@
-{ config, lib, ... }:
+{
+  config,
+  lib,
+  pkgs,
+  ...
+}:
 let
   fd = lib.getExe config.programs.fd.package;
   sesh = lib.getExe config.programs.sesh.package;
   tmux = lib.getExe config.programs.tmux.package;
+  tldr = lib.getExe pkgs.tlrc;
 in
 {
   programs.fzf = {
@@ -34,15 +40,31 @@ in
 
   programs.television = {
     enable = true;
+    settings = {
+      ui = {
+        theme_overrides = with config.lib.stylix.colors.withHashtag; {
+          border_fg = base03;
+          text_fg = base05;
+          dimmed_text_fg = base05;
+          input_text_fg = base08;
+          result_count_fg = base08;
+          result_name_fg = base05;
+          result_line_number_fg = base03;
+          result_value_fg = base05;
+          selection_bg = base01;
+          selection_fg = base05;
+          match_fg = base0D;
+          preview_title_fg = base0A;
+          channel_mode_fg = base00;
+          channel_mode_bg = base0B;
+        };
+      };
+    };
     channels = {
       sesh = {
         metadata = {
           name = "sesh";
-          description = "Session manager integrating tmux sessions, zoxide directories, and config paths";
-          requirements = [
-            "sesh"
-            "fd"
-          ];
+          description = "tmux session manager";
         };
         source = {
           ansi = true;
@@ -55,12 +77,8 @@ in
               run = "${sesh} list --icons";
             }
             {
-              name = "Tmux";
-              run = "${sesh} list -t --icons";
-            }
-            {
               name = "Projects";
-              run = "${fd} -H -d 1 -t d -E .Trash . ${config.xdg.userDirs.projects} -x basename";
+              run = "${lib.getExe config.programs.eza.package} -D -1 ${config.xdg.userDirs.projects} | ${lib.getExe pkgs.gnused} 's/^/󰉋 /'";
             }
           ];
         };
@@ -81,9 +99,35 @@ in
             mode = "execute";
           };
           kill_session = {
-            description = "Kill selected tmux session (press Ctrl+r to reload)";
+            description = "kill selected tmux session";
             command = "${tmux} kill-session -t '{strip_ansi|split: :1..|join: }'";
             mode = "fork";
+          };
+        };
+      };
+      tldr = {
+        metadata = {
+          name = "tldr";
+          description = "browse tldr pages";
+        };
+
+        source = {
+          command = "${tldr} --list";
+        };
+
+        programs = {
+          command = "${tldr} '{0}' --color always";
+        };
+
+        keybindings = {
+          ctrl-e = "actions:open";
+        };
+
+        actions = {
+          open = {
+            description = "open the selected tldr page";
+            command = "${tldr} '{0}'";
+            mode = "execute";
           };
         };
       };
@@ -96,16 +140,15 @@ in
       indexes = [
         "nixpkgs"
         "home-manager"
+        "noogle"
+        "nixos"
         "darwin"
         "nur"
-        "noogle"
-        "stylix"
       ];
 
       experimental = {
         render_docs_indexes = {
-          nix-darwin = "https://nix-darwin.github.io/nix-darwin/manual/index.html";
-          stylix = "https://nix-community.github.io/stylix/print.html";
+          # stylix = "https://nix-community.github.io/stylix/print.html";
         };
       };
     };
