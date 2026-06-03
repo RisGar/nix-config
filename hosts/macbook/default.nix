@@ -42,12 +42,12 @@
         ;
 
       whatsapp-for-mac = prev.whatsapp-for-mac.overrideAttrs (old: rec {
-        version = "2.26.21.17";
+        version = "2.26.22.20";
         src = prev.fetchzip {
           extension = "zip";
           name = "WhatsApp.app";
           url = "https://web.whatsapp.com/desktop/mac_native/release/?version=${version}&extension=zip&configuration=Release&branch=master";
-          hash = "sha256-JPUToYx5H/VMhK9UdF6sKz8rKXvI/ZMqkVPbrDDt6PI=";
+          hash = "sha256-tEE590f8h6rO2BBLjBxrrZx+i8fGHct1ojOJf2M/vQM=";
         };
       });
 
@@ -148,7 +148,7 @@
 
   # Used for backwards compatibility, please read the changelog before changing.
   # $ darwin-rebuild changelog
-  system.stateVersion = 6;
+  system.stateVersion = 7;
 
   system.startup.chime = true;
 
