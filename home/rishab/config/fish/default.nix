@@ -2,6 +2,7 @@
   pkgs,
   lib,
   config,
+  osConfig,
   ...
 }:
 let
@@ -26,10 +27,10 @@ in
     cd = "z";
     ".." = "z ..";
 
-    nixrepl = "nix repl --expr '{inherit (import <nixpkgs> {}) pkgs lib;}'";
-    nixtree = "nix-tree --derivation \"${config.vars.systemFlake}#darwinConfigurations.Rishabs-MacBook-Pro.config.system.build.toplevel\"";
+    nixrepl = "${lib.getExe config.nix.package} repl --expr '{inherit (import <nixpkgs> {}) pkgs lib;}'";
+    nixtree = "${lib.getExe pkgs.nix-tree} --derivation \"${config.vars.systemFlake}#darwinConfigurations.Rishabs-MacBook-Pro.config.system.build.toplevel\"";
 
-    spotify-dlp = "yt-dlp -f \"ba[ext=m4a]\" -x --audio-format m4a --embed-thumbnail --embed-metadata --sponsorblock-remove music_offtopic -o \"~/Music/Spotify/%(artist,uploader)s - %(title)s.%(ext)s\"";
+    spotify-dlp = "${lib.getExe pkgs.yt-dlp} -f \"ba[ext=m4a]\" -x --audio-format m4a --embed-thumbnail --embed-metadata --sponsorblock-remove music_offtopic -o \"~/Music/Spotify/%(artist,uploader)s - %(title)s.%(ext)s\"";
 
     reload-homelab = "${lib.getExe pkgs.nixos-rebuild} switch --flake ${config.vars.systemFlake}#Rishabs-Homelab --target-host homelab --sudo";
     reload-homelab-local = "${lib.getExe pkgs.nixos-rebuild} switch --flake ${config.vars.systemFlake}#Rishabs-Homelab --target-host 192.168.178.42 --sudo";
@@ -125,7 +126,7 @@ in
     shellInitLast = lib.optionalString autoStartTmux ''
       if status is-interactive
       and not set -q TMUX
-        exec tmux new -As0
+        exec ${lib.getExe config.programs.tmux.package} new -As0
       end
     '';
 
@@ -134,11 +135,11 @@ in
       oil = {
         description = "Opens pre-configured ssh hosts with oil";
         body = ''
-          set host (grep 'Host\>' ~/.ssh/config | sed 's/^Host //' | grep -v '\*' | ${lib.getExe pkgs.gum} filter --limit 1 --no-sort --fuzzy --placeholder 'Pick an ssh host' --prompt="󰣀 ")
+          set host (${lib.getExe pkgs.gnugrep} 'Host\>' ~/.ssh/config | ${lib.getExe pkgs.gnused} 's/^Host //' | ${lib.getExe pkgs.gnugrep} -v '\*' | ${lib.getExe pkgs.gum} filter --limit 1 --no-sort --fuzzy --placeholder 'Pick an ssh host' --prompt="󰣀 ")
           if test -z "$host"
               return 0
           end
-          set user (ssh -G "$host" | grep '^user\>' | sed 's/^user //')
+          set user (ssh -G "$host" | ${lib.getExe pkgs.gnugrep} '^user\>' | ${lib.getExe pkgs.gnused} 's/^user //')
           ${config.home.sessionVariables.EDITOR} oil-ssh://$user@$host/
         '';
       };
@@ -146,9 +147,9 @@ in
       reload = {
         description = "Reloads nix-darwin";
         body = ''
-          sudo -i darwin-rebuild switch -I ${config.vars.systemFlake}#${config.vars.hostname} $argv
+          sudo -i ${lib.getExe osConfig.system.build.darwin-rebuild} switch -I ${config.vars.systemFlake}#${config.vars.hostname} $argv
           ghostty +validate-config
-          tmux source-file ~/.config/tmux/tmux.conf
+          ${lib.getExe config.programs.tmux.package} source-file ~/.config/tmux/tmux.conf
           source ~/.config/fish/config.fish
         '';
       };
@@ -158,7 +159,7 @@ in
         body = ''
           command clear
           if set TMUX
-            tmux clear-history
+            ${lib.getExe config.programs.tmux.package} clear-history
           end
         '';
       };
