@@ -61,10 +61,6 @@ in
 
     # MACOSX_DEPLOYMENT_TARGET = 15;
 
-    # Homebrew config
-    HOMEBREW_PREFIX = "/opt/homebrew";
-    HOMEBREW_CELLAR = "${config.home.sessionVariables.HOMEBREW_PREFIX}/Cellar";
-    HOMEBREW_REPOSITORY = "${config.home.sessionVariables.HOMEBREW_PREFIX}";
     HOMEBREW_BAT = 1;
 
     # Force programs to use XDG dirs
