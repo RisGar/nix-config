@@ -6,16 +6,16 @@
 
 buildGoModule (finalAttrs: {
   pname = "mole-mac";
-  version = "1.40.0";
+  version = "1.44.0";
 
   src = fetchFromGitHub {
     owner = "tw93";
     repo = "Mole";
     rev = "V${finalAttrs.version}";
-    hash = "sha256-N7Gd4z+sCenuS1f4ZqRgKNzBBv3J9D3nrk2QmVifIOY=";
+    hash = "sha256-jYNeUCurLMPv7/7Em1vedNjIW3fTcJ3Zu9S3+Ys9ikA=";
   };
 
-  vendorHash = "sha256-+JxttzU6y/ETUS8VWKIGCvAs/sM1Xz9DBU4eVniVIes=";
+  vendorHash = "sha256-HcCJ3DYj5AXX+E5AD6jxBysCq4TAoIs2I6oVN4dCBxQ=";
 
   subPackages = [
     "cmd/analyze"
@@ -40,7 +40,7 @@ buildGoModule (finalAttrs: {
     rm -f "$out/bin/analyze" "$out/bin/status"
 
     substituteInPlace "$out/bin/mole" \
-      --replace-fail 'SCRIPT_DIR="$(cd "$(dirname "''${BASH_SOURCE[0]}")" && pwd)"' 'SCRIPT_DIR="$out/libexec"'
+      --replace-fail 'SCRIPT_DIR="$(cd "$(dirname "''${BASH_SOURCE[0]}")" && pwd)"' "SCRIPT_DIR=\"$out/libexec\""
   '';
 
   doCheck = false;

@@ -8,11 +8,11 @@
 
 stdenvNoCC.mkDerivation (finalAttrs: {
   pname = "thaw-bar";
-  version = "1.2.0";
+  version = "2.0.0-rc.1";
 
   src = fetchurl {
     url = "https://github.com/stonerl/Thaw/releases/download/${finalAttrs.version}/Thaw_${finalAttrs.version}.zip";
-    hash = "sha256-1n9NMe+foFeEmphUC4EM+kLgvGYBnTYFq9CORcaaoG8=";
+    hash = "sha256-O+ejm9ElhvS2J8S9MX9wU7t/aOuImjosWbB+bMjdaY8=";
   };
 
   sourceRoot = ".";
