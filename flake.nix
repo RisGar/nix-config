@@ -17,9 +17,9 @@
       nixpkgs,
       nvim-config,
       self,
-      virby,
       ocrtool-mcp,
       stylix,
+      lix-module,
       ...
     }:
     let
@@ -31,10 +31,10 @@
       # $ sudo -i darwin-rebuild build --flake .#Rishabs-MacBook-Pro
       darwinConfigurations."Rishabs-MacBook-Pro" = nix-darwin.lib.darwinSystem {
         modules = [
-          virby.darwinModules.default
           home-manager.darwinModules.default
           nix-homebrew.darwinModules.default
           agenix.darwinModules.default
+          lix-module.darwinModules.default
 
           ./hosts/macbook
 
@@ -102,6 +102,11 @@
         specialArgs = {
         };
       };
+
+      # Expose fully configured system packages including overlays under config#packages
+      legacyPackages."aarch64-darwin" = self.darwinConfigurations."Rishabs-MacBook-Pro".pkgs;
+      legacyPackages."x86_64-linux" = self.nixosConfigurations."Rishabs-Homelab".pkgs;
+      nix.registry.config.flake = self;
     };
 
   inputs = {
@@ -135,10 +140,6 @@
       url = "github:RisGar/base16-schemes";
       flake = false;
     };
-    virby = {
-      url = "github:quinneden/virby-nix-darwin";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
     disko = {
       url = "github:nix-community/disko";
       inputs.nixpkgs.follows = "nixpkgs";
@@ -162,6 +163,18 @@
     stylix = {
       url = "github:nix-community/stylix";
       inputs.nixpkgs.follows = "nixpkgs";
+    };
+
+    # Lix
+    lix = {
+      url = "https://git.lix.systems/lix-project/lix/archive/main.tar.gz";
+      flake = false;
+    };
+
+    lix-module = {
+      url = "https://git.lix.systems/lix-project/nixos-module/archive/main.tar.gz";
+      inputs.nixpkgs.follows = "nixpkgs";
+      inputs.lix.follows = "lix";
     };
 
     # Homebrew taps
