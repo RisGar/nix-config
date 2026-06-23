@@ -87,22 +87,6 @@ in
     WAYLAND_DISPLAY = "wayland-0";
   };
 
-  home.sessionSearchVariables = {
-    MANPATH = [
-      "${config.home.sessionVariables.HOMEBREW_PREFIX}/share/man"
-      "${config.home.sessionVariables.HOMEBREW_PREFIX}/opt/libarchive/share/man"
-    ];
-    INFOPATH = [ "${config.home.sessionVariables.HOMEBREW_PREFIX}/share/info" ];
-    fish_complete_path = [
-      "${config.home.sessionVariables.HOMEBREW_PREFIX}/share/fish/vendor_completions.d"
-      "${config.home.sessionVariables.HOMEBREW_PREFIX}/share/fish/completions"
-    ];
-    __fish_vendor_confdirs = [
-      "${config.home.sessionVariables.HOMEBREW_PREFIX}/share/fish/vendor_conf.d"
-    ];
-
-  };
-
   programs.fish = {
     enable = true;
 
