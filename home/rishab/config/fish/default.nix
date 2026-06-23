@@ -32,8 +32,8 @@ in
 
     spotify-dlp = "${lib.getExe pkgs.yt-dlp} -f \"ba[ext=m4a]\" -x --audio-format m4a --embed-thumbnail --embed-metadata --sponsorblock-remove music_offtopic -o \"~/Music/Spotify/%(artist,uploader)s - %(title)s.%(ext)s\"";
 
-    reload-homelab = "${lib.getExe pkgs.nixos-rebuild} switch --flake ${config.vars.systemFlake}#Rishabs-Homelab --target-host homelab --sudo";
-    reload-homelab-local = "${lib.getExe pkgs.nixos-rebuild} switch --flake ${config.vars.systemFlake}#Rishabs-Homelab --target-host 192.168.178.42 --sudo";
+    homelab-reload = "${lib.getExe pkgs.nixos-rebuild} switch --flake ${config.vars.systemFlake}#Rishabs-Homelab --target-host 192.168.178.42 --build-host 192.168.178.42 --sudo --no-reexec --use-substitutes";
+    psa-reload = "NIX_SSHOPTS='-p 60204' ${lib.getExe pkgs.nixos-rebuild} switch --flake ${config.xdg.userDirs.projects}/psa#vmpsateam02-04 --target-host root@psa.in.tum.de --build-host root@psa.in.tum.de --sudo --no-reexec --use-substitutes";
   };
 
   home.sessionPath = [
@@ -74,14 +74,15 @@ in
     WAKATIME_HOME = "${config.xdg.configHome}/wakatime";
     UNISON = "${config.xdg.dataHome}/unison";
     JULIA_DEPOT_PATH = "${config.xdg.dataHome}/julia:$JULIA_DEPOT_PATH";
-    # DOCKER_CONFIG = "${config.xdg.configHome}/docker";
     GRADLE_USER_HOME = "${config.xdg.dataHome}/gradle";
-    # COLIMA_HOME = "${config.xdg.configHome}/colima";
-    # DOCKER_HOST = "unix://${config.home.sessionVariables.COLIMA_HOME}/default/docker.sock";
+    PYTHON_HISTORY = "${config.xdg.stateHome}/python_history";
+    NPM_CONFIG_INIT_MODULE = "${config.xdg.configHome}/npm/config/npm-init.js";
+    NPM_CONFIG_CACHE = "${config.xdg.cacheHome}/npm";
+    NPM_CONFIG_TMP = "${config.home.sessionVariables.XDG_RUNTIME_DIR}/npm";
 
     ## C(++) compilers
-    CC = lib.getExe pkgs.llvmPackages_latest.clang;
-    CXX = lib.getExe pkgs.llvmPackages_latest.clang + "++";
+    CC = lib.getExe' pkgs.llvmPackages_latest.clang "clang";
+    CXX = lib.getExe' pkgs.llvmPackages_latest.clang "clang++";
 
     WAYLAND_DISPLAY = "wayland-0";
   };
@@ -109,7 +110,6 @@ in
 
     shellInit = ''
       set -gx CONTEXT7_API_KEY (string trim < ${config.age.secrets.context7.path})
-      set -gx TAVILY_API_KEY (string trim < ${config.age.secrets.tavily.path})
       set -gx OPENROUTER_API_KEY (string trim < ${config.age.secrets.openrouter.path})
 
       set fish_cursor_default block blink
@@ -133,7 +133,7 @@ in
     functions = {
       # Adapted from https://gist.github.com/jsongerber/7dfd9f2d22ae060b98e15c5590c4828d
       oil = {
-        description = "Opens pre-configured ssh hosts with oil";
+        description = "opens pre-configured ssh hosts with oil";
         body = ''
           set host (${lib.getExe pkgs.gnugrep} 'Host\>' ~/.ssh/config | ${lib.getExe pkgs.gnused} 's/^Host //' | ${lib.getExe pkgs.gnugrep} -v '\*' | ${lib.getExe pkgs.gum} filter --limit 1 --no-sort --fuzzy --placeholder 'Pick an ssh host' --prompt="󰣀 ")
           if test -z "$host"
@@ -145,7 +145,7 @@ in
       };
 
       reload = {
-        description = "Reloads nix-darwin";
+        description = "reloads nix-darwin";
         body = ''
           sudo -i ${lib.getExe osConfig.system.build.darwin-rebuild} switch -I ${config.vars.systemFlake}#${config.vars.hostname} $argv
           ghostty +validate-config
