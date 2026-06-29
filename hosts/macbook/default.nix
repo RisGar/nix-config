@@ -33,6 +33,7 @@
       thaw = prev.callPackage ../../pkgs/thaw.nix { };
       mole-mac = prev.callPackage ../../pkgs/mole-mac.nix { }; # TODO: fix
       dragterm = prev.callPackage ../../pkgs/dragterm.nix { };
+      create-thesis = prev.callPackage ../../pkgs/create-thesis.nix { };
 
       inherit (prev.lixPackageSets.stable)
         nixpkgs-review

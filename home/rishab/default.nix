@@ -69,6 +69,7 @@
       with pkgs;
       [
         # xquartz
+        create-thesis
         mediainfo
         dragterm
         signal-desktop
