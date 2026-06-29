@@ -270,12 +270,21 @@
 
       dnscrypt_servers = true;
       doh_servers = true;
+      odoh_servers = false;
 
       require_dnssec = true;
       require_nolog = true;
       require_nofilter = true;
 
       http3 = true;
+      http3_probe = false;
+
+      bootstrap_resolvers = [
+        "9.9.9.11:53"
+        "149.112.112.11:53"
+        "[2620:fe::11]:53"
+        "[2620:fe::fe:11]:53"
+      ];
 
       sources = {
         public-resolvers = {
@@ -285,6 +294,15 @@
           ];
           cache_file = "public-resolvers.md";
           minisign_key = "RWQf6LRCGA9i53mlYecO4IzT51TGPpvWucNSCh1CBM0QTaLn73Y7GFO3";
+        };
+        quad9-resolvers = {
+          urls = [
+            "https://quad9.net/dnscrypt/quad9-resolvers.md"
+            "https://raw.githubusercontent.com/Quad9DNS/dnscrypt-settings/main/dnscrypt/quad9-resolvers.md"
+          ];
+          cache_file = "/var/cache/dnscrypt-proxy/quad9-resolvers.md";
+          minisign_key = "RWQBphd2+f6eiAqBsvDZEBXBGHQBJfeG6G+wJPPKxCZMoEQYpmoysKUN";
+          prefix = "quad9-";
         };
         relays = {
           urls = [
@@ -296,7 +314,10 @@
         };
       };
 
-      forwarding_rules = ../common/forwarding-rules.conf;
+      forwarding_rules = pkgs.writeText "forwarding-rules.conf" ''
+        fritz.box                 $DHCP
+        iceportal.de              $DHCP
+      '';
 
       monitoring_ui = {
         enabled = true;
