@@ -7,6 +7,7 @@
   pkgs,
   secrets,
   stylix,
+  zen-browser,
   ...
 }:
 {
@@ -15,10 +16,11 @@
     nix-index-database.homeModules.default
     direnv-instant.homeModules.direnv-instant
     stylix.homeModules.stylix
+    zen-browser.homeModules.twilight
 
     ./config/agents
     ./config/aerospace
-    ./config/captive-browser # TODO: replace with dnscypt proxy forwarding of firefox default captive portal getter site
+    ./config/browser
     ./config/fastfetch
     ./config/fish
     ./config/fuzzy
@@ -86,7 +88,6 @@
         babelfish
         beam.interpreters.erlang_28 # for gleescript
         bear
-        captive-browser
         csvlens
         doomrunner
         ffmpeg

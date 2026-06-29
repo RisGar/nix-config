@@ -34,9 +34,11 @@
       fish.enable = false; # Manual
       fzf.enable = false; # Manual
       starship.enable = true;
+      zen-browser.enable = true;
     };
   };
 
+  stylix.targets.zen-browser.profileNames = [ "default" ];
   xdg.configFile."fish/themes/stylix.theme".text = with config.lib.stylix.colors; ''
     # Syntax Highlighting Colors
     fish_color_normal ${base05}
