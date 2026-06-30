@@ -1,5 +1,7 @@
 {
   config,
+  pkgs,
+  lib,
   ...
 }:
 {
@@ -15,7 +17,7 @@
     enableDefaultConfig = false;
     settings = {
       "Host *" = {
-        IdentityAgent = config.home.homeDirectory + "/.strongbox/agent.sock";
+        IdentityAgent = "${config.home.homeDirectory}/.strongbox/agent.sock";
         StrictHostKeyChecking = "accept-new";
       };
 
@@ -25,8 +27,9 @@
       };
 
       "homelab" = {
-        Hostname = "192.168.178.42";
+        Hostname = "ssh.rishab.org";
         User = "rishab";
+        ProxyCommand = "${lib.getExe pkgs.cloudflared} access ssh --hostname %h";
       };
 
       "valhalla" = {
@@ -37,19 +40,6 @@
       "vps" = {
         Hostname = "85.215.138.48";
         User = "root";
-      };
-
-      "psa" = {
-        Hostname = "psa.in.tum.de";
-        User = "go57siq";
-        ForwardX11Trusted = true;
-      };
-
-      "grnvs" = {
-        Hostname = "testbed.grnvs.net.cit.tum.de";
-        User = "u64829";
-        Port = 10022;
-        ForwardAgent = true;
       };
     };
   };
