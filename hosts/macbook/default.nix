@@ -26,7 +26,6 @@
     mlpreview.overlays.default
 
     (final: prev: {
-      stdenv = prev.clangStdenv;
       gtk-print-rs = prev.callPackage gtk-print-rs { gtk4 = prev.gtk4.override { cupsSupport = true; }; };
 
       thaw = prev.callPackage ../../pkgs/thaw.nix { };

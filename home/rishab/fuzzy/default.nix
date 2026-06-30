@@ -34,8 +34,6 @@ in
       prompt = base0A;
       "hl+" = base0D;
     };
-
-    # Don't use tmux/shell integration as `fzf-tmux` has been replaced by `--tmux`
   };
 
   programs.television = {

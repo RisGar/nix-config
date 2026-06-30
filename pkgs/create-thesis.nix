@@ -1,7 +1,6 @@
 {
   lib,
   python3Packages,
-  fetchgit,
   texlive,
   pdftk,
   ghostscript,
@@ -24,7 +23,7 @@ python3Packages.buildPythonApplication {
   version = "1.1.0";
   format = "setuptools";
 
-  src = builtins.fetchGit {
+  src = fetchGit {
     url = "https://git.fs.tum.de/drucktool/create-thesis.git";
     rev = "f07bea6e0484c11379fd1b5c4be0bc490e5776c8";
     ref = "refs/tags/v1.1.0";
@@ -39,7 +38,6 @@ python3Packages.buildPythonApplication {
     sed -i 's/packages = find_packages()/scripts=["create-thesis"]/g' setup.py
   '';
 
-  # Dependencies needed at runtime
   makeWrapperArgs = [
     "--prefix PATH : ${
       lib.makeBinPath [
