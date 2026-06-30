@@ -2,7 +2,6 @@
   pkgs,
   lib,
   config,
-  options,
   osConfig,
   ...
 }:
@@ -14,9 +13,7 @@ in
 
   xdg = {
     enable = true;
-    userDirs = {
-      enable = true;
-    };
+    userDirs.enable = true;
   };
   home.preferXdgDirectories = true;
 
@@ -26,7 +23,6 @@ in
     rm = "rm -i";
 
     cd = "z";
-    ".." = "z ..";
 
     nixrepl = "${lib.getExe config.nix.package} repl --expr '{inherit (import <nixpkgs> {}) pkgs lib;}'";
     nixtree = "${lib.getExe pkgs.nix-tree} --derivation \"${config.vars.systemFlake}#darwinConfigurations.Rishabs-MacBook-Pro.config.system.build.toplevel\"";
@@ -40,9 +36,6 @@ in
   home.sessionPath = [
     "${config.xdg.dataHome}/go/bin"
     config.xdg.binHome
-    "/Applications/Visual Studio Code.app/Contents/Resources/app/bin"
-    "$HOME/Library/Application Support/JetBrains/Toolbox/scripts"
-    "/Library/TeX/texbin"
   ];
 
   home.sessionVariables = {
@@ -78,10 +71,6 @@ in
     NPM_CONFIG_INIT_MODULE = "${config.xdg.configHome}/npm/config/npm-init.js";
     NPM_CONFIG_CACHE = "${config.xdg.cacheHome}/npm";
     NPM_CONFIG_TMP = "${config.home.sessionVariables.XDG_RUNTIME_DIR}/npm";
-
-    ## C(++) compilers
-    CC = lib.getExe' pkgs.llvmPackages_latest.clang "clang";
-    CXX = lib.getExe' pkgs.llvmPackages_latest.clang "clang++";
 
     WAYLAND_DISPLAY = "wayland-0";
   };
@@ -130,7 +119,7 @@ in
       reload = {
         description = "reloads nix-darwin";
         body = ''
-          sudo -i ${lib.getExe osConfig.system.build.darwin-rebuild} switch -I ${config.vars.systemFlake}#${config.vars.hostname} $argv
+          sudo ${lib.getExe osConfig.system.build.darwin-rebuild} switch -I ${config.vars.systemFlake}#${config.vars.hostname} --log-format internal-json $argv |& ${lib.getExe pkgs.nix-output-monitor} --json
           ghostty +validate-config
           ${lib.getExe config.programs.tmux.package} source-file ~/.config/tmux/tmux.conf
           source ~/.config/fish/config.fish
