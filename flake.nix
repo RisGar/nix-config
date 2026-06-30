@@ -12,7 +12,6 @@
       homebrew-core,
       hewigovens-tap,
       lix-module,
-      mlpreview,
       nix-darwin,
       nix-homebrew,
       nix-index-database,
@@ -85,7 +84,6 @@
         specialArgs = {
           inherit
             agenix
-            mlpreview
             self
             nixln-edit
             nvim-config
@@ -140,10 +138,6 @@
     };
     home-manager = {
       url = "github:nix-community/home-manager";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
-    mlpreview = {
-      url = "github:RisGar/mlpreview";
       inputs.nixpkgs.follows = "nixpkgs";
     };
     nix-homebrew = {

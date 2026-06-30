@@ -1,12 +1,11 @@
 {
   agenix,
   lib,
-  mlpreview,
   nixln-edit,
   nvim-config,
   pkgs,
   self,
-  gtk-print-rs,
+  print-cli-rs,
   ...
 }:
 {
@@ -23,10 +22,8 @@
 
   nixpkgs.overlays = [
     agenix.overlays.default
-    mlpreview.overlays.default
 
     (final: prev: {
-      gtk-print-rs = prev.callPackage gtk-print-rs { gtk4 = prev.gtk4.override { cupsSupport = true; }; };
 
       thaw = prev.callPackage ../../pkgs/thaw.nix { };
       mole-mac = prev.callPackage ../../pkgs/mole-mac.nix { };
@@ -57,6 +54,7 @@
         ];
       };
 
+      print-cli-rs = prev.callPackage print-cli-rs { };
       nixln-edit = prev.callPackage nixln-edit { };
 
       yaziPlugins = prev.yaziPlugins // {

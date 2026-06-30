@@ -105,7 +105,6 @@
         luarocks
         man-pages
         man-pages-posix
-        mlpreview
         moonlight-qt
         mosh
         nix-tree
