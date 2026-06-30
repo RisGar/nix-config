@@ -52,6 +52,7 @@ in
       bind-key a display-popup -b rounded -E -xC -yC -w 80% -h 70% "${lib.getExe config.programs.television.package} sesh"
 
       bind-key g display-popup -b rounded -E -xC -yC -w 80% -h 80% -d "#{pane_current_path}" ${lib.getExe config.programs.lazygit.package} 
+      bind-key j display-popup -b rounded -E -xC -yC -w 80% -h 80% -d "#{pane_current_path}" ${lib.getExe config.programs.jjui.package} 
 
       bind-key N display-popup -b rounded -E -w 80% -h 80% "${config.home.sessionVariables.EDITOR} ~/Documents/Notes/scratch.md"
 
