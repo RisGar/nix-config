@@ -14,6 +14,10 @@
   nixpkgs.config = {
     allowBroken = true;
     allowUnfree = true;
+
+    permittedInsecurePackages = [
+      "firefox-esr-140-bin-unwrapped-140.17.0esr"
+    ];
   };
 
   nixpkgs.hostPlatform = "aarch64-darwin";
@@ -47,7 +51,7 @@
       trusted-users = [ "@admin" ];
       auto-optimise-store = true;
       log-format = "multiline-with-logs";
-      sandbox = true;
+      sandbox = false;
 
       experimental-features = [
         "nix-command"
