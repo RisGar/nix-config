@@ -1,0 +1,73 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+Subject: [PATCH] wrapQtAppsHook: preset the locale before wrapping
+
+Backport of NixOS/nixpkgs#542479 ("qt6.wrapQtAppsHook: preset LANG to avoid
+bash 5.3 fixup-loop segfault on Darwin", still open upstream), extended to the
+qt5 hook and to LC_ALL.
+
+The wrap loop runs
+
+  find "$targetDir" ... | while IFS= read -r -d '' file; do
+      isELF "$file" || isMachO "$file" || continue
+
+in a forked subshell, and those helpers do a transient `LANG=C read -r -n 4`
+assignment. When the build environment has no locale at all (the normal nix
+builder env), bash 5.3 intermittently segfaults on that unset -> C setlocale
+transition and kills fixupPhase:
+
+  > wrapping Qt applications in .../bin ...
+  >   Segmentation fault: 11     | while IFS= read -r -d '' file; do ...
+
+Reproducer with nixpkgs' bash 5.3 on aarch64-darwin (intermittent, ~2-10%):
+
+  env -i <nix-bash-5.3>/bin/bash -c \
+    'echo x | while read l; do LANG=C true; echo ok; done'   # exit 139
+
+Presetting LANG makes the transient assignment a no-op. LC_ALL is pinned as
+well: bash's `read -n` counts characters instead of bytes in a multibyte
+locale, which makes isELF/isMachO misdetect every Mach-O and wrap nothing at
+all (NixOS/nixpkgs#431934) - stdenv's own `LANG=C read` does not help there,
+because LC_ALL takes precedence over LANG.
+
+Verified locally (bash 5.3p20, aarch64-darwin): 2/20 crashes before, 0/20
+after; and a Qt derivation built with LC_ALL/LANG set to a UTF-8 locale now
+wraps $out/bin and the .app bundle instead of silently skipping both.
+
+diff --git a/pkgs/development/libraries/qt-6/hooks/wrap-qt-apps-hook.sh b/pkgs/development/libraries/qt-6/hooks/wrap-qt-apps-hook.sh
+--- a/pkgs/development/libraries/qt-6/hooks/wrap-qt-apps-hook.sh
++++ b/pkgs/development/libraries/qt-6/hooks/wrap-qt-apps-hook.sh
+@@ -85,6 +85,15 @@
+         done
+         qtWrapperDoneForOuputs+=("$prefix")
+ 
++        # `isELF`/`isMachO` do a transient `LANG=C read` inside a forked subshell of
++        # the fixup loop below. With no locale in the build environment bash 5.3 can
++        # segfault on that setlocale transition (NixOS/nixpkgs#542479); presetting LANG
++        # makes it a no-op. Pinning LC_ALL keeps the 4-byte magic read byte-wise, as
++        # bash's `read -n` counts characters rather than bytes in a multibyte locale
++        # (NixOS/nixpkgs#431934).
++        export LANG="${LANG:-C}"
++        export LC_ALL=C
++
+         local targetDirs=("$prefix/bin" "$prefix/sbin" "$prefix/libexec" "$prefix/Applications" "$prefix/"*.app)
+         echo "wrapping Qt applications in ${targetDirs[*]}"
+ 
+diff --git a/pkgs/development/libraries/qt-5/hooks/wrap-qt-apps-hook.sh b/pkgs/development/libraries/qt-5/hooks/wrap-qt-apps-hook.sh
+--- a/pkgs/development/libraries/qt-5/hooks/wrap-qt-apps-hook.sh
++++ b/pkgs/development/libraries/qt-5/hooks/wrap-qt-apps-hook.sh
+@@ -86,6 +86,15 @@
+     done
+     qtWrapperDoneForOuputs+=("$prefix")
+ 
++    # `isELF`/`isMachO` do a transient `LANG=C read` inside a forked subshell of
++    # the fixup loop below. With no locale in the build environment bash 5.3 can
++    # segfault on that setlocale transition (NixOS/nixpkgs#542479); presetting LANG
++    # makes it a no-op. Pinning LC_ALL keeps the 4-byte magic read byte-wise, as
++    # bash's `read -n` counts characters rather than bytes in a multibyte locale
++    # (NixOS/nixpkgs#431934).
++    export LANG="${LANG:-C}"
++    export LC_ALL=C
++
+     local targetDirs=( "$prefix/bin" "$prefix/sbin" "$prefix/libexec" "$prefix/Applications" "$prefix/"*.app )
+     echo "wrapping Qt applications in ${targetDirs[*]}"
+ 
