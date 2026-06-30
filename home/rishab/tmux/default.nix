@@ -110,7 +110,7 @@ in
         }
         {
           name = "Second Brain  ";
-          path = "${config.home.homeDirectory}/Library/Mobile Documents/iCloud~com~logseq~logseq/Documents/Second Brain";
+          path = "${config.home.homeDirectory}/Library/Mobile Documents/iCloud~com~logseq~logseq/Documents/second-brain";
         }
       ];
     };
