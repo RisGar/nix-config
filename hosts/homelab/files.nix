@@ -1,12 +1,41 @@
-{ config, pkgs, ... }:
+{
+  config,
+  lib,
+  pkgs,
+  ...
+}:
 let
   model = "qwen3.5:4b";
   storageRoot = "/mnt/external/papra";
 in
 {
+  services.samba = {
+    enable = true;
+    usershares.enable = true;
+    openFirewall = true;
+    settings = {
+      "tm_share" = {
+        "path" = "/mnt/external/TimeMachine";
+        "valid users" = "rishab";
+        "public" = "no";
+        "writeable" = "yes";
+        "fruit:aapl" = "yes";
+        "fruit:time machine" = "yes";
+        "fruit:time machine max size" = "1T";
+        "vfs objects" = "catia fruit streams_xattr";
+      };
+    };
+  };
+
+  # seed the passdb from sops on every activation as there is no declarative option in `services.samba`
+  system.activationScripts.init_smbpasswd.text = ''
+    password="$(cat ${config.sops.secrets.user-rishab.path})"
+    printf '%s\n' "$password" "$password" | ${lib.getExe' pkgs.samba "smbpasswd"} -sa rishab
+  '';
+
   services.ollama = {
     enable = true;
-    syncModels = true; # Declarative models
+    syncModels = true; # declarative models
     loadModels = [ model ];
   };
 
@@ -44,9 +73,8 @@ in
 
     environment = {
       APP_BASE_URL = "https://${config.apps."files".hostname}";
+      SERVER_HOSTNAME = "127.0.0.1";
 
-      # Reached through the cloudflared tunnel and Caddy, both of which set the
-      # client IP headers; used for rate limiting.
       AUTH_IP_ADDRESS_HEADERS = "cf-connecting-ip,x-forwarded-for";
 
       AUTH_PROVIDERS_EMAIL_IS_ENABLED = false;
@@ -55,12 +83,8 @@ in
       DOCUMENTS_CONTENT_EXTRACTION_ENABLED = true;
       CONTENT_EXTRACTION_STRATEGY = "internal"; # bundled tesseract
 
-      # Documents/ingestion on /mnt/external, database in /var/lib/papra.
       DOCUMENT_STORAGE_DRIVER = "filesystem";
       DOCUMENT_STORAGE_FILESYSTEM_ROOT = "${storageRoot}/local-documents";
-      INGESTION_FOLDER_ROOT_PATH = "${storageRoot}/ingestion";
-      # Set INGESTION_FOLDER_IS_ENABLED = true to auto-import files dropped
-      # into <storageRoot>/ingestion/<organization id>.
 
       AI_IS_ENABLED = true;
       AI_CREDITS_IS_ENABLED = false; # no metering for self-hosting
@@ -68,23 +92,9 @@ in
       AI_DEFAULT_MODEL = "ollama://${model}";
       AUTO_TAGGING_ENABLED = true;
       AUTO_TAGGING_MODEL = "ollama://${model}";
+
     };
   };
 
-  # Don't start before the documents disk is mounted.
   systemd.services.papra.unitConfig.RequiresMountsFor = [ storageRoot ];
-
-  systemd.services.papra-dirs = {
-    description = "Create Papra documents and ingestion directories";
-    requiredBy = [ "papra.service" ];
-    unitConfig.RequiresMountsFor = [ storageRoot ];
-    script = ''
-      ${pkgs.coreutils}/bin/install -d -m 0700 -o papra -g papra ${storageRoot}/local-documents
-      ${pkgs.coreutils}/bin/install -d -m 0770 -o papra -g papra ${storageRoot}/ingestion
-    '';
-    serviceConfig = {
-      Type = "oneshot";
-      User = "root";
-    };
-  };
 }
