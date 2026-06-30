@@ -67,6 +67,7 @@
 
       git = {
         sign-on-push = true;
+        colocate = false;
       };
 
     };
