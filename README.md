@@ -2,4 +2,4 @@
 
 # nix configs
 
-nix configs for my MacBook (with home-manager config) and my Homelab.
+nix configs for my MacBook (with home-manager config) my Homelab, and my IONOS VPS to tunnel traffic through NAT.
