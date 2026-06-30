@@ -91,7 +91,7 @@
         static_configs = [
           {
             targets = [
-              "127.0.0.1:${toString config.virtualisation.oci-containers.containers.yopass.environment.METRICS_PORT}"
+              "127.0.0.1:${toString config.services.yopass.settings.METRICS_PORT}"
             ];
           }
         ];
