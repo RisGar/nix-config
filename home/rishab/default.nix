@@ -72,8 +72,10 @@
       [
         # xquartz
         create-thesis
+        ctx7
         mediainfo
         dragterm
+        walavave-trash-cli
         signal-desktop
         nvim
         # anki
@@ -81,7 +83,7 @@
         nixln-edit
         monitorcontrol
         bun
-        # mole-mac
+        mole-mac
         cinny-desktop
         pkgs.agenix
         airdrop-cli
@@ -91,7 +93,6 @@
         csvlens
         doomrunner
         ffmpeg
-        git-credential-manager
         github-copilot-cli
         grandperspective
         http-server
@@ -167,6 +168,16 @@
 
     programs.uv = {
       enable = true;
+      python = {
+        prune = true;
+        versions = [
+          "3.14"
+        ];
+      };
+      tool = {
+        packages = [ ];
+        prune = true;
+      };
     };
 
     programs.yt-dlp = {
@@ -228,16 +239,12 @@
     gtk = {
       enable = true;
       colorScheme = "dark";
-      gtk4.theme = config.gtk.theme;
     };
 
     xdg.configFile."ghostty/config".text = builtins.readFile ./config/ghostty/config;
 
     programs.nh = {
       enable = true;
-      clean = {
-        enable = true;
-      };
     };
 
     programs.spotify-player = {
@@ -272,7 +279,11 @@
 
     programs.man = {
       # Prevent warning that man is null
-      generateCaches = false;
+      generateCaches = true;
+    };
+
+    programs.halloy = {
+      enable = true;
     };
   };
 }
