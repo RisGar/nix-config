@@ -2,8 +2,7 @@
 {
   home.packages = with pkgs; [
     # Fonts
-    maple-mono.NF # TODO: phase out?
-    maple-mono.NF-CN # TODO: phase out?
+    maple-mono.NF
     jost
     raleway
     source-sans
