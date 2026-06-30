@@ -292,8 +292,8 @@
       sources = {
         public-resolvers = {
           urls = [
-            "https://raw.githubusercontent.com/DNSCrypt/dnscrypt-resolvers/master/v3/public-resolvers.md"
             "https://download.dnscrypt.info/resolvers-list/v3/public-resolvers.md"
+            "https://raw.githubusercontent.com/DNSCrypt/dnscrypt-resolvers/master/v3/public-resolvers.md"
           ];
           cache_file = "public-resolvers.md";
           minisign_key = "RWQf6LRCGA9i53mlYecO4IzT51TGPpvWucNSCh1CBM0QTaLn73Y7GFO3";
@@ -303,14 +303,14 @@
             "https://quad9.net/dnscrypt/quad9-resolvers.md"
             "https://raw.githubusercontent.com/Quad9DNS/dnscrypt-settings/main/dnscrypt/quad9-resolvers.md"
           ];
-          cache_file = "/var/cache/dnscrypt-proxy/quad9-resolvers.md";
+          cache_file = "quad9-resolvers.md";
           minisign_key = "RWQBphd2+f6eiAqBsvDZEBXBGHQBJfeG6G+wJPPKxCZMoEQYpmoysKUN";
           prefix = "quad9-";
         };
         relays = {
           urls = [
+            "https://download.dnscrypt.info/resolvers-list/v3/relays.md"
             "https://raw.githubusercontent.com/DNSCrypt/dnscrypt-resolvers/master/v3/relays.md"
-            "https://download.dnscrypt.info/resolvers-list/v3/relays.md'"
           ];
           cache_file = "relays.md";
           minisign_key = "RWQf6LRCGA9i53mlYecO4IzT51TGPpvWucNSCh1CBM0QTaLn73Y7GFO3";
