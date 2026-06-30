@@ -3,22 +3,18 @@
 
   outputs =
     {
-      agenix,
+      sops-nix,
       direnv-instant,
       disko,
-      print-cli-rs,
       home-manager,
       homebrew-cask,
       homebrew-core,
-      hewigovens-tap,
       lix-module,
       nix-darwin,
       nix-homebrew,
       nix-index-database,
-      nixln-edit,
       nixpkgs,
-      nvim-config,
-      ocrtool-mcp,
+      nixpkgs-overlay,
       self,
       stylix,
       zen-browser,
@@ -26,7 +22,6 @@
     }:
     let
       inherit (nixpkgs) lib;
-      secrets = import ./secrets lib;
     in
     {
       # Build darwin flake using:
@@ -35,7 +30,7 @@
         modules = [
           home-manager.darwinModules.default
           nix-homebrew.darwinModules.default
-          agenix.darwinModules.default
+          sops-nix.darwinModules.sops
           lix-module.darwinModules.default
 
           ./hosts/macbook
@@ -43,8 +38,6 @@
           {
             nix.registry.nixpkgs.flake = nixpkgs; # Pin flake so nix3 commands use system nixpkgs
             nix.nixPath = [ "nixpkgs=${nixpkgs.outPath}" ]; # pin nix path so nix2 commands use system nixpkgs
-
-            age.secrets = secrets;
 
             home-manager = {
               useGlobalPkgs = true;
@@ -55,12 +48,12 @@
               extraSpecialArgs = {
                 inherit
                   stylix
-                  agenix
+                  sops-nix
                   direnv-instant
                   nix-index-database
-                  ocrtool-mcp
-                  secrets
+                  nixpkgs-overlay
                   zen-browser
+                  disko
                   ;
               };
             };
@@ -74,7 +67,6 @@
               taps = {
                 "homebrew/homebrew-core" = homebrew-core;
                 "homebrew/homebrew-cask" = homebrew-cask;
-                "hewigovens/homebrew-tap" = hewigovens-tap;
               };
               mutableTaps = false;
             };
@@ -83,11 +75,9 @@
         ];
         specialArgs = {
           inherit
-            agenix
+            sops-nix
             self
-            nixln-edit
-            nvim-config
-            print-cli-rs
+            nixpkgs-overlay
             ;
         };
       };
@@ -95,28 +85,17 @@
       nixosConfigurations."Rishabs-Homelab" = lib.nixosSystem {
         modules = [
           disko.nixosModules.default
-          agenix.nixosModules.default
+          sops-nix.nixosModules.sops
 
           ./hosts/homelab
-
-          {
-            age.secrets = secrets;
-          }
         ];
         specialArgs = {
         };
       };
 
-      nixosConfigurations."vps" = lib.nixosSystem {
+      nixosConfigurations."study-usb" = lib.nixosSystem {
         modules = [
-          disko.nixosModules.default
-          # agenix.nixosModules.default
-
-          ./hosts/vps
-
-          {
-            # age.secrets = secrets;
-          }
+          ./hosts/study-usb
         ];
         specialArgs = {
         };
@@ -143,32 +122,16 @@
     nix-homebrew = {
       url = "github:zhaofengli/nix-homebrew";
     };
-    nixln-edit = {
-      url = "github:nlintn/nixln-edit";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
-    nvim-config = {
-      url = "github:RisGar/nvim-config";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
-    base16-schemes = {
-      url = "github:RisGar/base16-schemes";
-      flake = false;
-    };
     disko = {
-      url = "github:nix-community/disko";
+      url = "github:nix-community/disko/pull/1277/head"; # TODO wait for merge
       inputs.nixpkgs.follows = "nixpkgs";
     };
-    agenix = {
-      url = "github:ryantm/agenix";
+    sops-nix = {
+      url = "github:Mic92/sops-nix";
       inputs.nixpkgs.follows = "nixpkgs";
     };
     direnv-instant = {
       url = "github:Mic92/direnv-instant";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
-    ocrtool-mcp = {
-      url = "github:RisGar/ocrtool-mcp";
       inputs.nixpkgs.follows = "nixpkgs";
     };
     nix-index-database = {
@@ -181,17 +144,13 @@
     };
     zen-browser = {
       url = "github:0xc000022070/zen-browser-flake";
-      inputs = {
-        nixpkgs.follows = "nixpkgs";
-        home-manager.follows = "home-manager";
-      };
+      inputs.nixpkgs.follows = "nixpkgs";
+      inputs.home-manager.follows = "home-manager";
     };
-    print-cli-rs = {
-      url = "github:RisGar/print-cli-rs";
+    nixpkgs-overlay = {
+      url = "github:RisGar/nixpkgs-overlay";
       inputs.nixpkgs.follows = "nixpkgs";
     };
-
-    # Lix
     lix = {
       url = "https://git.lix.systems/lix-project/lix/archive/main.tar.gz";
       flake = false;
@@ -209,10 +168,6 @@
     };
     homebrew-cask = {
       url = "github:homebrew/homebrew-cask";
-      flake = false;
-    };
-    hewigovens-tap = {
-      url = "github:hewigovens/tap";
       flake = false;
     };
   };
