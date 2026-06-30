@@ -56,6 +56,15 @@ run = ["layout floating"]
 check-further-callbacks = true
 
 [[on-window-detected]]
+if.app-id = "com.IdeaPunch.ColorSlurp"
+run = ["layout floating"]
+
+[[on-window-detected]]
+if.window-title-regex-substring= "Sending Message"
+run = ["layout floating"]
+
+
+[[on-window-detected]]
 if.app-id = "app.zen-browser.zen"
 run = ["move-node-to-workspace w"]
 
@@ -67,9 +76,6 @@ run = ["move-node-to-workspace t"]
 if.app-id = "md.obsidian"
 run = ["move-node-to-workspace d"]
 
-[[on-window-detected]]
-if.app-id = "com.IdeaPunch.ColorSlurp"
-run = ["layout floating"]
 
 [workspace-to-monitor-force-assignment]
 1 = "main"
