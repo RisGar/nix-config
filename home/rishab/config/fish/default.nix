@@ -37,9 +37,8 @@ in
   };
 
   home.sessionPath = [
-    config.programs.go.env.GOBIN
-    config.home.sessionVariables.XDG_BIN_HOME
-    "${config.home.sessionVariables.CARGO_HOME}/bin"
+    "${config.xdg.dataHome}/go/bin"
+    config.xdg.binHome
     "/Applications/Visual Studio Code.app/Contents/Resources/app/bin"
     "$HOME/Library/Application Support/JetBrains/Toolbox/scripts"
     "/Library/TeX/texbin"
@@ -148,6 +147,19 @@ in
         '';
       };
 
+      fix-atuin = {
+        description = "fixes atuin by killing hanging processes and restarting the daemon";
+        body = ''
+          echo "Killing hanging atuin processes..."
+          pkill -9 atuin 2>/dev/null
+          echo "Restarting atuin daemon..."
+          launchctl stop org.nix-community.home.atuin-daemon 2>/dev/null
+          launchctl start org.nix-community.home.atuin-daemon
+          sleep 1
+          atuin daemon status
+        '';
+      };
+
       # Fastfetch on greeting
       fish_greeting = {
         body = if autoStartFastfetch then lib.getExe config.programs.fastfetch.package else "";
@@ -208,6 +220,7 @@ in
 
   programs.atuin = {
     enable = true;
+    forceOverwriteSettings = true;
     daemon.enable = true;
   };
 }
