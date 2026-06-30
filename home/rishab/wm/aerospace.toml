@@ -1,9 +1,18 @@
 # Place a copy of this config to ~/.aerospace.toml
 # After that, you can edit ~/.aerospace.toml to your liking
 
+# Config version for compatibility and deprecations
+# See: https://nikitabobko.github.io/AeroSpace/guide#config-version
+# Fallback value (if you omit the key): config-version = 1
+config-version = 2
+
+# Don't start AeroSpace at login as that is handled by launchd
 start-at-login = false
 
-config-version = 2
+# Automatically reload the config when the config file is saved
+# After setting this to true, reload once manually to start the auto-reloading
+# TODO:
+auto-reload-config = false
 
 # Normalizations. See: https://nikitabobko.github.io/AeroSpace/guide#normalization
 enable-normalization-flatten-containers = true
@@ -13,17 +22,22 @@ enable-normalization-opposite-orientation-for-nested-containers = true
 # The 'accordion-padding' specifies the size of accordion padding
 # You can set 0 to disable the padding feature
 accordion-padding = 30
+
 # Possible values: tiles|accordion
+default-root-container-layout = 'tiles'
+
 # Possible values: horizontal|vertical|autodefault-root-container-layout = "tiles"
 # 'auto' means: wide monitor (anything wider than high) gets horizontal orientation,
 #               tall monitor (anything higher than wide) gets vertical orientation
 default-root-container-orientation = "auto"
+
 # Mouse follows focus when focused monitor changes
 # Drop it from your config, if you don't like this behavior
 # See https://nikitabobko.github.io/AeroSpace/guide#on-focus-changed-callbacks
 # See https://nikitabobko.github.io/AeroSpace/commands#move-mouse
 # Fallback value (if you omit the key): on-focused-monitor-changed = []
 on-focused-monitor-changed = ["move-mouse monitor-lazy-center"]
+
 # You can effectively turn off macOS "Hide application" (cmd-h) feature by toggling this flag
 # Useful if you don't use this macOS feature, but accidentally hit cmd-h or cmd-alt-h key
 # Also see: https://nikitabobko.github.io/AeroSpace/goodies#disable-hide-app
@@ -31,10 +45,20 @@ automatically-unhide-macos-hidden-apps = true
 
 persistent-workspaces = ["1", "2", "t", "w", "c", "d"]
 
+# A callback that runs every time binding mode changes
+# See: https://nikitabobko.github.io/AeroSpace/guide#binding-modes
+# See: https://nikitabobko.github.io/AeroSpace/commands#mode
+on-mode-changed = []
+
+focus-follows-mouse.enabled = false
+
 # Possible values: (qwerty|dvorak|colemak)
 # See https://nikitabobko.github.io/AeroSpace/guide#key-mapping
 [key-mapping]
 preset = "qwerty"
+
+[key-mapping.key-notation-to-key-code]
+hyper = 'cmd-ctrl-alt-shift'
 
 # Gaps between windows (inner-*) and between monitor edges (outer-*).
 # Possible values:
@@ -53,16 +77,6 @@ outer.top = 8
 outer.right = 8
 
 [[on-window-detected]]
-if.app-id = "app.zen-browser.zen"
-if.window-title-regex-substring = "Picture-in-Picture"
-run = ["layout floating"]
-check-further-callbacks = true
-
-[[on-window-detected]]
-if.app-id = "com.IdeaPunch.ColorSlurp"
-run = ["layout floating"]
-
-[[on-window-detected]]
 if.app-id = "org.nixos.thunderbird"
 if.window-title-regex-substring = "Sending Message"
 run = ["layout floating"]
@@ -70,7 +84,6 @@ run = ["layout floating"]
 [[on-window-detected]]
 if.app-id = "io.mpv"
 run = ["layout floating"]
-
 
 [[on-window-detected]]
 if.app-id = "app.zen-browser.zen"
@@ -129,26 +142,26 @@ w = ["secondary", "main"]
 # '''
 
 # See: https://nikitabobko.github.io/AeroSpace/commands#layout
-cmd-ctrl-alt-shift-period = "layout tiles horizontal vertical"
-cmd-ctrl-alt-shift-comma = "layout accordion horizontal vertical"
+hyper-period = "layout tiles horizontal vertical"
+hyper-comma = "layout accordion horizontal vertical"
 # See: https://nikitabobko.github.io/AeroSpace/commands#focus
-cmd-ctrl-alt-shift-h = "focus left"
-cmd-ctrl-alt-shift-j = "focus down"
-cmd-ctrl-alt-shift-k = "focus up"
-cmd-ctrl-alt-shift-l = "focus right"
+hyper-h = "focus left"
+hyper-j = "focus down"
+hyper-k = "focus up"
+hyper-l = "focus right"
 # See: https://nikitabobko.github.io/AeroSpace/commands#move
 cmd-ctrl-alt-h = "move left"
 cmd-ctrl-alt-j = "move down"
 cmd-ctrl-alt-k = "move up"
 cmd-ctrl-alt-l = "move right"
 # See: https://nikitabobko.github.io/AeroSpace/commands#resize
-cmd-ctrl-alt-shift-up = "resize smart -50"
-cmd-ctrl-alt-shift-down = "resize smart +50"
+hyper-up = "resize smart -50"
+hyper-down = "resize smart +50"
 # See: https://nikitabobko.github.io/AeroSpace/commands#workspace
-cmd-ctrl-alt-shift-1 = "workspace 1"
-cmd-ctrl-alt-shift-2 = "workspace 2"
-cmd-ctrl-alt-shift-3 = "workspace 3"
-cmd-ctrl-alt-shift-4 = "workspace 4"
+hyper-1 = "workspace 1"
+hyper-2 = "workspace 2"
+hyper-3 = "workspace 3"
+hyper-4 = "workspace 4"
 # See: https://nikitabobko.github.io/AeroSpace/commands#move-node-to-workspace
 cmd-ctrl-alt-1 = "move-node-to-workspace 1"
 cmd-ctrl-alt-2 = "move-node-to-workspace 2"
@@ -159,28 +172,28 @@ cmd-ctrl-alt-t = "move-node-to-workspace t"
 cmd-ctrl-alt-d = "move-node-to-workspace d"
 cmd-ctrl-alt-c = "move-node-to-workspace c"
 # See: https://nikitabobko.github.io/AeroSpace/commands#workspace-back-and-forth
-cmd-ctrl-alt-shift-tab = "workspace-back-and-forth"
+hyper-tab = "workspace-back-and-forth"
 # See: https://nikitabobko.github.io/AeroSpace/commands#move-workspace-to-monitor
 cmd-ctrl-alt-tab = "move-workspace-to-monitor --wrap-around next"
 # See: https://nikitabobko.github.io/AeroSpace/commands#mode
-cmd-ctrl-alt-shift-s = "mode service"
+hyper-s = "mode service"
 # Terminal
-cmd-ctrl-alt-shift-t = [
+hyper-t = [
   "exec-and-forget open /Applications/Ghostty.app",
   "workspace t",
 ]
 # Zen (Web) 
-cmd-ctrl-alt-shift-w = [
+hyper-w = [
   "exec-and-forget open '/Applications/Zen Browser.app'",
   "workspace w",
 ]
 # Obsidian (Docs)
-cmd-ctrl-alt-shift-d = [
+hyper-d = [
   "exec-and-forget open $HOME'/Applications/Home Manager Apps/Obsidian.app'",
   "workspace d",
 ]
 # Logseq (Content)
-cmd-ctrl-alt-shift-c = [
+hyper-c = [
   "exec-and-forget open $HOME'/Applications/Home Manager Apps/Logseq.app'",
   "workspace c",
 ]
@@ -201,6 +214,3 @@ cmd-ctrl-alt-h = ["join-with left", "mode main"]
 cmd-ctrl-alt-j = ["join-with down", "mode main"]
 cmd-ctrl-alt-k = ["join-with up", "mode main"]
 cmd-ctrl-alt-l = ["join-with right", "mode main"]
-down = "volume down"
-up = "volume up"
-shift-down = ["volume set 0", "mode main"]
