@@ -59,7 +59,7 @@
         diff-editor = [
           (lib.getExe pkgs.nvim)
           "-c"
-          "DiffEditor $left $right output"
+          "DiffEditor $left $right $output"
         ];
         diff-intructions = false;
       };
@@ -67,6 +67,7 @@
       git = {
         sign-on-push = true;
       };
+
     };
   };
 
