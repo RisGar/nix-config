@@ -107,6 +107,21 @@
         };
       };
 
+      nixosConfigurations."vps" = lib.nixosSystem {
+        modules = [
+          disko.nixosModules.default
+          # agenix.nixosModules.default
+
+          ./hosts/vps
+
+          {
+            # age.secrets = secrets;
+          }
+        ];
+        specialArgs = {
+        };
+      };
+
       # Expose fully configured system packages including overlays under config#packages
       legacyPackages."aarch64-darwin" = self.darwinConfigurations."Rishabs-MacBook-Pro".pkgs;
       legacyPackages."x86_64-linux" = self.nixosConfigurations."Rishabs-Homelab".pkgs;

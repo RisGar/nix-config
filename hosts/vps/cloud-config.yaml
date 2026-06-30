@@ -1,0 +1,5 @@
+#cloud-config
+users:
+  - default
+ssh_authorized_keys:
+  - ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIKmBZ3bwIN+dktLVqVRq8DxFuz8Obm0dEt3wr1+ahTHQ rishab@Rishabs-MacBook-Pro
