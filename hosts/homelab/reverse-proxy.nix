@@ -1,8 +1,22 @@
 {
   config,
   lib,
+  pkgs,
   ...
 }@args:
+let
+  inherit (config.vars) FQDN;
+
+  # Pocket ID OIDC client used by Caddy for authentication.
+  # Its callback URLs must include https://*.${FQDN}/oauth2/callback
+  oidcClientId = "42d56c29-497e-4896-81af-bc2a23144434";
+
+  # Caddyfile snippet to inject for each `apps.<name>.access` value.
+  oidcSnippets = {
+    authenticated = "oidc_auth";
+    admin = "oidc_admin";
+  };
+in
 {
   options.apps = lib.mkOption {
     type = lib.types.attrsOf (
@@ -21,13 +35,24 @@
               type = lib.types.nullOr lib.types.str;
               default = null;
             };
-            forwardAuth = lib.mkOption {
-              type = lib.types.bool;
-              default = false;
-            };
-            adminOnly = lib.mkOption {
-              type = lib.types.bool;
-              default = false;
+            access = lib.mkOption {
+              type = lib.types.enum [
+                "public"
+                "authenticated"
+                "admin"
+              ];
+              default = "public";
+              description = ''
+                Who may reach this vhost.
+
+                - `public`: no `oidc` handler is added, `content` is served as is.
+                  Use this for apps that make their own per-request auth decisions.
+                - `authenticated`: any signed-in Pocket ID user.
+                - `admin`: only members of the Pocket ID `admin` group.
+
+                Authentication happens in-process via the caddy-oidc plugin, so
+                `admin` always implies `authenticated`.
+              '';
             };
             content = lib.mkOption {
               type = lib.types.str;
@@ -52,18 +77,58 @@
 
     services.caddy = {
       enable = true;
+      package = pkgs.caddy.withPlugins {
+        plugins = [ "github.com/relvacode/caddy-oidc@v0.4.3" ];
+        hash = "sha256-YcoOyjE4mgMy1JtSYMRMCZVDPASVNUPfi6vNzNWfXho=";
+      };
+      environmentFile = config.sops.secrets.caddy-oidc.path;
       globalConfig = ''
         auto_https off
         metrics
         servers {
           trusted_proxies_unix
         }
+
+        oidc {
+          issuer https://${config.apps."auth".hostname}
+          client_id ${oidcClientId}
+          client_secret {env.OIDC_CLIENT_SECRET}
+          scope openid email profile groups
+          username preferred_username
+          protected_resource_metadata off
+
+          # The session cookie is scoped to the parent domain so a single login
+          # covers every vhost. `groups` is copied into the session because the
+          # access rules below match on it.
+          authenticate cookie {
+            name caddy_session
+            secret {env.OIDC_COOKIE_SECRET}
+            domain ${FQDN}
+            same_site lax
+            claim groups
+            max_age 168h
+          }
+        }
       '';
       extraConfig = ''
-        (tinyauth_forwarder) {
-          forward_auth 127.0.0.1:${toString config.apps."proxy".port} {
-            uri /api/auth/caddy
-            copy_headers Remote-User Remote-Name Remote-Email Remote-Groups
+        # Any authenticated Pocket ID user.
+        (oidc_auth) {
+          oidc {
+            allow {
+              user *
+            }
+          }
+        }
+
+        # Members of the `admin` group only. Anything else (including anonymous
+        # visitors, who trip the implicit deny and get redirected to Pocket ID)
+        # is rejected.
+        (oidc_admin) {
+          oidc {
+            allow {
+              user *
+              claim groups admin
+            }
           }
         }
       '';
@@ -76,7 +141,7 @@
           lib.nameValuePair "http://${site.hostname}" {
             listenAddresses = [ "unix//run/caddy/caddy.sock|0660" ];
             extraConfig = ''
-              ${lib.optionalString site.forwardAuth "import tinyauth_forwarder"}
+              ${lib.optionalString (site.access != "public") "import ${oidcSnippets.${site.access}}"}
               ${site.content}
             '';
           }
@@ -85,14 +150,13 @@
 
     apps = {
       "test" = {
-        forwardAuth = true;
+        access = "authenticated";
         content = ''
-          respond "Hello {http.request.header.Remote-User}." 200
+          respond "Hello {http.auth.user.id}." 200
         '';
       };
       "proxmox" = {
-        forwardAuth = true;
-        adminOnly = true;
+        access = "admin";
         content = ''
           reverse_proxy https://192.168.178.25:8006 {
             transport http {
