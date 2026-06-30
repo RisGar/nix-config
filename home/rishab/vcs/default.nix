@@ -62,6 +62,7 @@
           "DiffEditor $left $right $output"
         ];
         diff-intructions = false;
+        show-cryptographic-signatures = true;
       };
 
       git = {

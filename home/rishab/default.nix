@@ -18,19 +18,19 @@
     stylix.homeModules.stylix
     zen-browser.homeModules.twilight
 
-    ./config/agents
-    ./config/aerospace
-    ./config/browser
-    ./config/fastfetch
-    ./config/fish
-    ./config/fuzzy
-    ./config/git
-    ./config/java
-    ./config/ssh
-    ./config/tmux
-    ./config/yazi
-    ./config/sioyek
-    ./config/colours
+    ./agents
+    ./wm
+    ./browser
+    ./fastfetch
+    ./shell
+    ./fuzzy
+    ./vcs
+    ./langs
+    ./ssh
+    ./tmux
+    ./files
+    ./pdf
+    ./colours
   ];
 
   options = {
@@ -166,20 +166,6 @@
       enable = true;
     };
 
-    programs.uv = {
-      enable = true;
-      python = {
-        prune = true;
-        versions = [
-          "3.14"
-        ];
-      };
-      tool = {
-        packages = [ ];
-        prune = true;
-      };
-    };
-
     programs.yt-dlp = {
       enable = true;
     };
@@ -190,12 +176,6 @@
 
     programs.fd = {
       enable = true;
-    };
-
-    programs.starship = {
-      enable = true;
-      enableTransience = true;
-      settings = fromTOML (builtins.readFile ./config/starship/starship.toml);
     };
 
     programs.direnv = {
@@ -220,14 +200,6 @@
       enable = true;
     };
 
-    programs.go = {
-      enable = true;
-      env = {
-        GOPATH = "${config.xdg.dataHome}/go";
-        GOBIN = "${config.xdg.dataHome}/go/bin";
-      };
-    };
-
     programs.aria2 = {
       enable = true;
     };
@@ -241,7 +213,7 @@
       colorScheme = "dark";
     };
 
-    xdg.configFile."ghostty/config".text = builtins.readFile ./config/ghostty/config;
+    xdg.configFile."ghostty/config".text = builtins.readFile ./terminal/ghostty-config;
 
     programs.nh = {
       enable = true;

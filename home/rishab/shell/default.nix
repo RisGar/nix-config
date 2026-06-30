@@ -223,4 +223,10 @@ in
     forceOverwriteSettings = true;
     daemon.enable = true;
   };
+
+  programs.starship = {
+    enable = true;
+    enableTransience = true;
+    settings = fromTOML (builtins.readFile ./starship.toml);
+  };
 }
