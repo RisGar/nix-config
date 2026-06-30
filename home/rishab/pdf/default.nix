@@ -1,6 +1,7 @@
 {
   pkgs,
   lib,
+  config,
   ...
 }:
 let
@@ -101,7 +102,7 @@ in
       "ui_font" = "Maple Mono NF";
       "font_size" = "15";
       "page_separator_width" = "15";
-      "page_separator_color" = "0.5 0.5 0.5";
+      "page_separator_color" = config.lib.stylix.colors.withHashtag.base00;
 
       startup_commands = [ "fit_to_page_width" ];
 
