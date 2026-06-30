@@ -41,8 +41,8 @@
 
         {
           on = [ "<C-l>" ];
-          run = "${lib.getExe pkgs.print-cli-rs} \"$@\"";
-          desc = "print selected file via system print preview";
+          run = "shell -- ${lib.getExe pkgs.print-cli-rs} %h";
+          desc = "print hovered file via system print preview";
         }
 
         {
@@ -77,7 +77,7 @@
           desc = "open in dragterm";
         }
         {
-          on = [ "<C-p>" ];
+          on = [ "<C-q>" ];
           run = "shell -- qlmanage -p %s";
           desc = "open in quicklook";
         }
