@@ -96,7 +96,7 @@ in
 
       echo "Fetching credentials from NordVPN..."
       while true; do
-        CREDS=$(curl -4 -sSf -H "User-Agent: NordApp Linux 3.16.1 Linux 5.4.0-58-generic" \
+        CREDS=$(curl -4 -sSf -H "User-Agent: NordApp Linux 6.0.1 Linux 6.16.3-200.fc42.x86_64" \
           "https://api.nordvpn.com/v1/users/services/credentials" \
           -H "Content-Type: application/json" \
           -H "Authorization: Basic $B64_TOKEN" || true)
