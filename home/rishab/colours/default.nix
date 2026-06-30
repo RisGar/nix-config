@@ -15,8 +15,8 @@
     };
     fonts = {
       monospace = {
-        package = pkgs.maple-mono.NF-CN;
-        name = "Maple Mono NF CN";
+        package = pkgs.maple-mono.NF;
+        name = "Maple Mono NF";
       };
       serif = config.stylix.fonts.monospace;
       sansSerif = config.stylix.fonts.monospace;
@@ -38,10 +38,10 @@
       zen-browser.enable = true;
       jjui.enable = false; # TODO
       qt.enable = false; # Doesn't work on macOS
+      zellij.enable = true;
       # TODO: obsidian, opencode, neovim
     };
   };
 
   stylix.targets.zen-browser.profileNames = [ "default" ];
-
 }
