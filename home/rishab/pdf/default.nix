@@ -91,9 +91,7 @@ in
     package = sioyek;
     bindings = {
       "toggle_custom_color" = "i";
-      # `<Ctrl h>` is not sioyek's key syntax; it wants `<C-h>`. The parser also
-      # splits a binding on whitespace and keeps the last token as the key, so
-      # `<Ctrl h>` was read as the command "goto_prev_tab <Ctrl" and dropped.
+
       "goto_prev_tab" = "<C-h>";
       "goto_next_tab" = "<C-l>";
 
