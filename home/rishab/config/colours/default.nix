@@ -31,12 +31,12 @@
       halloy.enable = true;
       lazygit.enable = true;
       sioyek.enable = true;
-      spotify-player.enable = false; # Manual
+      spotify-player.enable = false; # Term Colors
       starship.enable = true;
       tmux.enable = true;
       yazi.enable = true;
       zen-browser.enable = true;
-      jjui.enable = true;
+      jjui.enable = false; # TODO
       # TODO: obsidian, opencode
     };
   };
@@ -76,32 +76,5 @@
   programs.fish.interactiveShellInit = ''
     fish_config theme choose stylix
   '';
-
-  # Fix opaque background by manually removing it
-  programs.spotify-player = {
-    settings.theme = "stylix";
-    themes = lib.singleton {
-      name = "stylix";
-      palette = with config.lib.stylix.colors.withHashtag; {
-        foreground = base05;
-        black = base00;
-        red = base08;
-        green = base0B;
-        yellow = base0A;
-        blue = base0D;
-        magenta = base0E;
-        cyan = base0C;
-        white = base05;
-        bright_black = base03;
-        bright_red = base08;
-        bright_green = base0B;
-        bright_yellow = base0A;
-        bright_blue = base0D;
-        bright_magenta = base0E;
-        bright_cyan = base0C;
-        bright_white = base07;
-      };
-    };
-  };
 
 }
