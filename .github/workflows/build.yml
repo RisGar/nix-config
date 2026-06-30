@@ -1,0 +1,43 @@
+name: Build Nix Configurations
+
+on:
+  push:
+    branches:
+      - main
+      - master
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  build-macos:
+    name: Build macOS Configuration
+    runs-on: macos-14 # aarch64-darwin
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install Nix
+        uses: cachix/install-nix-action@v31
+        with:
+          github_access_token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build Rishabs-MacBook-Pro
+        run: nix build .#darwinConfigurations.Rishabs-MacBook-Pro.system --print-build-logs
+
+  build-nixos:
+    name: Build NixOS Configurations
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        host: [Rishabs-Homelab, vps, study-usb]
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install Nix
+        uses: cachix/install-nix-action@v31
+        with:
+          github_access_token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build ${{ matrix.host }}
+        run: nix build .#nixosConfigurations.${{ matrix.host }}.config.system.build.toplevel --print-build-logs
