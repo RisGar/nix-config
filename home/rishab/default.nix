@@ -27,6 +27,7 @@
     ./mail
     ./pdf
     ./shell
+    ./sign
     ./ssh
     ./tmux
     ./vcs
