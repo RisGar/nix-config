@@ -4,17 +4,19 @@
   pkgs,
   ...
 }:
-let
-  seshExe = lib.getExe config.programs.sesh.package;
-in
 {
   programs.tmux = {
     enable = true;
     mouse = false;
     prefix = "C-a";
     extraConfig = ''
+      # Terminal features & Image passthrough
+      set -g allow-passthrough all
+      set -as terminal-features ",xterm-ghostty:kitty"
+      set -ga update-environment TERM
+      set -ga update-environment TERM_PROGRAM
       set -g default-terminal "tmux-256color"
-      set -a terminal-features "tmux-256color:RGB:cnorm=\E[?12h\E[?25h"
+      set -as terminal-overrides ",xterm-ghostty:Tc"
 
       set -g base-index 1
       set -g renumber-windows on   
@@ -32,10 +34,6 @@ in
       set -g focus-events on
       set -g detach-on-destroy off  # don't exit from tmux when closing a session
 
-      # Image passthrough
-      set -gq allow-passthrough all
-      set -ga update-environment TERM
-      set -ga update-environment TERM_PROGRAM
 
       set -g clock-mode-style 24
 
@@ -49,12 +47,12 @@ in
       bind ü copy-mode
       bind x kill-pane # skip "kill-pane? (y/n)" prompt
 
-      bind-key a display-popup -b rounded -E -xC -yC -w 80% -h 70% "${lib.getExe config.programs.television.package} sesh"
+      bind-key a display-popup -b rounded -E -xC -yC -w 80% -h 70% "${lib.getExe config.programs.television.package} sesh --no-remote"
 
       bind-key g display-popup -b rounded -E -xC -yC -w 80% -h 80% -d "#{pane_current_path}" ${lib.getExe config.programs.lazygit.package} 
       bind-key j display-popup -b rounded -E -xC -yC -w 80% -h 80% -d "#{pane_current_path}" ${lib.getExe config.programs.jjui.package} 
 
-      bind-key N display-popup -b rounded -E -w 80% -h 80% "${config.home.sessionVariables.EDITOR} ~/Documents/Notes/scratch.md"
+      bind-key N display-popup -b rounded -E -w 80% -h 80% "${lib.getExe pkgs.nvim} ~/Documents/Notes/scratch.md"
 
       # vim like selection keys
       bind-key -T copy-mode-vi v send-keys -X begin-selection
@@ -83,10 +81,10 @@ in
 
   programs.sesh = {
     enable = true;
-    enableTmuxIntegration = false; # TODO: custom prompt with nerd font instead of emojis via overlay
+    enableTmuxIntegration = false; # using pkgs.television instead
     settings = {
       default_session = {
-        startup_command = "${config.home.sessionVariables.EDITOR} -c ':lua Snacks.picker.files(opts)'";
+        startup_command = lib.getExe pkgs.fastfetch;
       };
 
       session = [
@@ -114,5 +112,13 @@ in
         }
       ];
     };
+  };
+
+  # TODO
+  programs.zellij = {
+    enable = true;
+    # enableFishIntegration = true;
+    # attachExistingSession = true;
+    # exitShellOnExit = true;
   };
 }
