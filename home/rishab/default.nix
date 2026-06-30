@@ -21,7 +21,7 @@
     ./agents
     ./wm
     ./browser
-    ./fastfetch
+    ./fetch
     ./shell
     ./fuzzy
     ./vcs
@@ -71,6 +71,7 @@
       with pkgs;
       [
         # xquartz
+        gtk-print-rs
         create-thesis
         ctx7
         mediainfo

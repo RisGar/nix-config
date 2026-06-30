@@ -1,4 +1,5 @@
 {
+  lib,
   options,
   pkgs,
   ...
@@ -40,8 +41,8 @@
         }
 
         {
-          on = [ "<C-p>" ];
-          run = ''shell "open -a Preview \"$@\" && osascript -e 'tell application \"System Events\" to keystroke \"p\" using command down'" --confirm'';
+          on = [ "<C-l>" ];
+          run = "${lib.getExe pkgs.gtk-print-rs} \"$@\"";
           desc = "print selected file via system print preview";
         }
 

@@ -6,6 +6,7 @@
   nvim-config,
   pkgs,
   self,
+  gtk-print-rs,
   ...
 }:
 {
@@ -25,7 +26,9 @@
     mlpreview.overlays.default
 
     (final: prev: {
-      clippy-mac = prev.callPackage ../../pkgs/clippy-mac.nix { };
+      stdenv = prev.clangStdenv;
+      gtk-print-rs = prev.callPackage gtk-print-rs { gtk4 = prev.gtk4.override { cupsSupport = true; }; };
+
       thaw = prev.callPackage ../../pkgs/thaw.nix { };
       mole-mac = prev.callPackage ../../pkgs/mole-mac.nix { };
       dragterm = prev.callPackage ../../pkgs/dragterm.nix { };
