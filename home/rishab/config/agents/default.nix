@@ -57,10 +57,21 @@ in
       drawio-skill = "${drawio-skill}/skills/drawio-skill";
     };
     settings = {
-      enableTelemetry = false;
-      # enableTerminalSandbox = true;
-      notifications = true;
+      colorScheme = "terminal";
+      altScreenMode = "always";
       toolPermission = "proceed-in-sandbox";
+      artifactReviewPolicy = "asks-for-review";
+      notifications = true;
+      showTips = true;
+      showFeedbackSurvey = false;
+      editor = lib.getExe pkgs.nvim;
+      allowNonWorkspaceAccess = false;
+      enableTerminalSandbox = true;
+      enableTelemetry = false;
+      verbosity = "high";
+      runningLightSpeed = "medium";
+      model = "Gemini 3.1 Pro (High)";
+      useG1Credits = true;
     };
   };
 
