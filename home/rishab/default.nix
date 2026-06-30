@@ -147,22 +147,7 @@
         whisper-cpp
         xz
         zotero
-      ]
-      ++
-        # Fonts
-        [
-          maple-mono.NF # TODO: phase out
-          maple-mono.NF-CN
-          jost
-          raleway
-          source-sans
-          libertinus
-          hanken-grotesk
-          carlito
-          cabin
         ];
-
-    fonts.fontconfig.enable = true;
 
     programs.btop = {
       enable = true;
