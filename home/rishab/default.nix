@@ -71,12 +71,9 @@
       with pkgs;
       [
         # xquartz
-        gtk-print-rs
         create-thesis
         ctx7
         mediainfo
-        dragterm
-        walavave-trash-cli
         signal-desktop
         nvim
         # anki

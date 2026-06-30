@@ -438,26 +438,6 @@
         "url": "https://git.lix.systems/lix-project/nixos-module/archive/main.tar.gz"
       }
     },
-    "mlpreview": {
-      "inputs": {
-        "nixpkgs": [
-          "nixpkgs"
-        ]
-      },
-      "locked": {
-        "lastModified": 1771896316,
-        "narHash": "sha256-V7ycZq0PtBpgjAnDgyn1lQsMqMilHIzl7vKmGXvnS90=",
-        "owner": "RisGar",
-        "repo": "mlpreview",
-        "rev": "caf27b869aa89c8e525e99b8b2ac04d39064bf9a",
-        "type": "github"
-      },
-      "original": {
-        "owner": "RisGar",
-        "repo": "mlpreview",
-        "type": "github"
-      }
-    },
     "nix-darwin": {
       "inputs": {
         "nixpkgs": [
@@ -618,6 +598,26 @@
         "type": "github"
       }
     },
+    "print-cli-rs": {
+      "inputs": {
+        "nixpkgs": [
+          "nixpkgs"
+        ]
+      },
+      "locked": {
+        "lastModified": 1783387548,
+        "narHash": "sha256-nQQ+uIJEPNltZOk8JsXZ0gUYX/9LH8f9NWG3RKtqtao=",
+        "owner": "RisGar",
+        "repo": "print-cli-rs",
+        "rev": "249c5a2425549829e67452094bea70890cc8c5e2",
+        "type": "github"
+      },
+      "original": {
+        "owner": "RisGar",
+        "repo": "print-cli-rs",
+        "type": "github"
+      }
+    },
     "root": {
       "inputs": {
         "agenix": "agenix",
@@ -630,7 +630,6 @@
         "homebrew-core": "homebrew-core",
         "lix": "lix",
         "lix-module": "lix-module",
-        "mlpreview": "mlpreview",
         "nix-darwin": "nix-darwin",
         "nix-homebrew": "nix-homebrew",
         "nix-index-database": "nix-index-database",
@@ -638,6 +637,7 @@
         "nixpkgs": "nixpkgs",
         "nvim-config": "nvim-config",
         "ocrtool-mcp": "ocrtool-mcp",
+        "print-cli-rs": "print-cli-rs",
         "stylix": "stylix",
         "zen-browser": "zen-browser"
       }

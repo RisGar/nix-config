@@ -6,7 +6,7 @@
       agenix,
       direnv-instant,
       disko,
-      gtk-print-rs,
+      print-cli-rs,
       home-manager,
       homebrew-cask,
       homebrew-core,
@@ -89,7 +89,7 @@
             self
             nixln-edit
             nvim-config
-            gtk-print-rs
+            print-cli-rs
             ;
         };
       };
@@ -192,8 +192,8 @@
         home-manager.follows = "home-manager";
       };
     };
-    gtk-print-rs = {
-      url = "github:RisGar/gtk-print-rs";
+    print-cli-rs = {
+      url = "github:RisGar/print-cli-rs";
       inputs.nixpkgs.follows = "nixpkgs";
     };
 

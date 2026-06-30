@@ -10,8 +10,10 @@
     shellWrapperName = "y";
     package = options.programs.yazi.package.default.override {
       extraPackages = with pkgs; [
+        dragterm
         walavave-trash-cli
         exiftool
+        print-cli-rs
       ];
     };
     keymap = {
@@ -30,19 +32,14 @@
           ];
         }
 
-        # TODO
         {
-          on = [
-            "<C-p>"
-          ];
-          run = [
-            "plugin clipboard -- --action=paste"
-          ];
+          on = [ "<C-p>" ];
+          run = [ "plugin clipboard -- --action=paste" ];
         }
 
         {
           on = [ "<C-l>" ];
-          run = "${lib.getExe pkgs.gtk-print-rs} \"$@\"";
+          run = "${lib.getExe pkgs.print-cli-rs} \"$@\"";
           desc = "print selected file via system print preview";
         }
 
