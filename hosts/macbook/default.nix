@@ -96,16 +96,6 @@
     })
   ];
 
-  services.virby = {
-    enable = false;
-    cores = 4;
-    onDemand = {
-      enable = true;
-      ttl = 15; # in mins
-    };
-    rosetta = true;
-  };
-
   # Set Git commit hash for darwin-version.
   system.configurationRevision = self.rev or self.dirtyRev or null;
 
@@ -193,9 +183,6 @@
           app = "/Applications/Spotify.app";
         }
         {
-          app = "${pkgs.whatsapp-for-mac}/Applications/WhatsApp.app";
-        }
-        {
           app = "${pkgs.obsidian}/Applications/Obsidian.app";
         }
         {
@@ -211,6 +198,12 @@
           app = "/Applications/DEVONthink 3.app";
         }
         {
+          app = "${pkgs.signal-desktop}/Applications/Signal.app";
+        }
+        {
+          app = "${pkgs.whatsapp-for-mac}/Applications/WhatsApp.app";
+        }
+        {
           app = "/Applications/Telegram.app";
         }
         {
@@ -222,6 +215,9 @@
         {
           app = "/Applications/Strongbox.app";
         }
+        # {
+        # app = "/Applications/Antigravity.app";
+        # }
       ];
     };
 
