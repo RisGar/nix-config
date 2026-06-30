@@ -60,7 +60,7 @@ in
                 if config.port != null then
                   "reverse_proxy 127.0.0.1:${toString config.port}"
                 else if config.socket != null then
-                  "reverse_proxy unix//${config.socket}"
+                  "reverse_proxy unix/${config.socket}"
                 else
                   "";
             };
