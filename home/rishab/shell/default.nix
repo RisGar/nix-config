@@ -8,6 +8,27 @@
 let
   autoStartTmux = false;
   autoStartFastfetch = false;
+
+  # The homelab's LAN address (static in hosts/homelab/default.nix).
+  homelabLan = "192.168.178.42";
+
+  # Deploys must not go through the cloudflared tunnel: activating a new
+  # configuration restarts cloudflared-tunnel-homelab-tunnel, which drops the
+  # ssh connection the activation reports to. switch-to-configuration-ng then
+  # panics writing to that dead pipe (exit 101, see nixpkgs#462179) *after*
+  # stopping every unit, leaving the host half-switched and offline. Use the
+  # `homelab` alias (homelab-reload-remote) only when not on the LAN.
+  homelabReloadBody =
+    host:
+    ''
+      set -lx NIX_SSHOPTS "-o ControlMaster=auto -o ControlPath=/tmp/ssh_mux_%h_%p_%r -o ControlPersist=10m"
+      set -l ssh_cmd ssh -o ControlMaster=auto -o ControlPath=/tmp/ssh_mux_%h_%p_%r -o ControlPersist=10m
+      set -l old_sys ($ssh_cmd ${host} readlink /run/current-system)
+      ${lib.getExe pkgs.nixos-rebuild} switch --flake ${config.vars.systemFlake}#Rishabs-Homelab --target-host ${host} --build-host ${host} --sudo --no-reexec --use-substitutes --log-format internal-json -v $argv |& ${lib.getExe pkgs.nix-output-monitor} --json
+      if test -n "$old_sys"
+        $ssh_cmd ${host} nix run nixpkgs#dix -- --color always $old_sys /run/current-system
+      end
+    '';
 in
 {
 
@@ -108,16 +129,15 @@ in
       };
 
       homelab-reload = {
-        description = "reloads homelab and diffs with dix";
-        body = ''
-          set -lx NIX_SSHOPTS "-o ControlMaster=auto -o ControlPath=/tmp/ssh_mux_%h_%p_%r -o ControlPersist=10m"
-          set -l ssh_cmd ssh -o ControlMaster=auto -o ControlPath=/tmp/ssh_mux_%h_%p_%r -o ControlPersist=10m
-          set -l old_sys ($ssh_cmd homelab readlink /run/current-system)
-          ${lib.getExe pkgs.nixos-rebuild} switch --flake ${config.vars.systemFlake}#Rishabs-Homelab --target-host homelab --build-host homelab --sudo --no-reexec --use-substitutes --log-format internal-json -v $argv |& ${lib.getExe pkgs.nix-output-monitor} --json
-          if test -n "$old_sys"
-            $ssh_cmd homelab nix run nixpkgs#dix -- --color always $old_sys /run/current-system
-          end
-        '';
+        description = "reloads homelab over the LAN and diffs with dix";
+        body = homelabReloadBody homelabLan;
+      };
+
+      # Only for when the LAN is out of reach; see homelabReloadBody for why this
+      # can leave the host half-switched.
+      homelab-reload-remote = {
+        description = "reloads homelab over the cloudflared tunnel and diffs with dix";
+        body = homelabReloadBody "homelab";
       };
 
       reload = {
