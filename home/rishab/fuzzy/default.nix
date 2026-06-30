@@ -13,6 +13,7 @@ in
 {
   programs.fzf = {
     enable = true;
+    enableFishIntegration = false;
 
     defaultOptions = [
       "--cycle"
