@@ -17,6 +17,10 @@
               type = lib.types.nullOr lib.types.port;
               default = null;
             };
+            socket = lib.mkOption {
+              type = lib.types.nullOr lib.types.str;
+              default = null;
+            };
             forwardAuth = lib.mkOption {
               type = lib.types.bool;
               default = false;
@@ -27,9 +31,16 @@
             };
             content = lib.mkOption {
               type = lib.types.str;
-              default = if config.port != null then "reverse_proxy 127.0.0.1:${toString config.port}" else "";
+              default =
+                if config.port != null then
+                  "reverse_proxy 127.0.0.1:${toString config.port}"
+                else if config.socket != null then
+                  "reverse_proxy unix//${config.socket}"
+                else
+                  "";
             };
           };
+
         }
       )
     );
@@ -43,6 +54,7 @@
       enable = true;
       globalConfig = ''
         auto_https off
+        metrics
         servers {
           trusted_proxies_unix
         }
@@ -116,8 +128,25 @@
             uniquePorts = lib.unique portValues;
           in
           lib.length portValues == lib.length uniquePorts;
-        message = "Overlapping ports detected in config.apps! Please ensure all ports are unique.";
+        message = "overlapping ports detected in config.apps! please ensure all ports are unique.";
       }
+      {
+        assertion =
+          let
+            vhosts = lib.attrValues config.apps;
+          in
+          builtins.all (
+            app:
+            if app.port != null then
+              app.socket == null
+            else if app.socket != null then
+              app.port == null
+            else
+              true
+          ) vhosts;
+        message = "port and socket declared at the same time in config.apps! please only declare one of them.";
+      }
+      # TODO: check that port and socket isn't both declared
     ];
   };
 }
