@@ -1,15 +1,14 @@
 { config, ... }:
 {
-
   apps."metrics" = {
+    socket = config.services.grafana.settings.server.socket;
   };
+
   services.grafana = {
     enable = true;
     settings = {
       server = {
         protocol = "socket";
-        # http_addr = "127.0.0.1";
-        # http_port = config.apps."metrics".port;
         enable_gzip = true;
         root_url = "https://${config.apps."metrics".hostname}";
       };
@@ -45,6 +44,8 @@
         {
           name = "Prometheus";
           type = "prometheus";
+          # stable uid so provisioned alert rules can reference it
+          uid = "prometheus";
           url = "http://${config.services.prometheus.listenAddress}:${toString config.services.prometheus.port}";
           isDefault = true;
           editable = false;
@@ -54,49 +55,4 @@
   };
 
   systemd.services.grafana.serviceConfig.EnvironmentFile = [ config.sops.secrets."grafana/env".path ];
-
-  services.prometheus = {
-    enable = true;
-    port = 9090;
-
-    exporters = {
-      node = {
-        enable = true;
-        enabledCollectors = [
-          "systemd"
-        ];
-        port = 9002;
-      };
-    };
-
-    scrapeConfigs = [
-      {
-        job_name = "prometheus";
-        static_configs = [
-          {
-            targets = [ "127.0.0.1:${toString config.services.prometheus.port}" ];
-          }
-        ];
-      }
-      {
-        job_name = "node";
-        static_configs = [
-          {
-            targets = [ "127.0.0.1:${toString config.services.prometheus.exporters.node.port}" ];
-          }
-        ];
-      }
-      {
-        job_name = "yopass";
-        static_configs = [
-          {
-            targets = [
-              "127.0.0.1:${toString config.services.yopass.settings.METRICS_PORT}"
-            ];
-          }
-        ];
-      }
-    ];
-  };
-
 }
