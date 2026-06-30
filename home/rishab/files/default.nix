@@ -11,19 +11,12 @@
     package = options.programs.yazi.package.default.override {
       extraPackages = with pkgs; [
         dragterm
-        walavave-trash-cli
         exiftool
         print-cli-rs
       ];
     };
     keymap = {
       mgr.prepend_keymap = [
-        {
-          on = [ "R" ];
-          run = "plugin macos-trash";
-          desc = "open macos trash";
-        }
-
         {
           on = [ "y" ];
           run = [

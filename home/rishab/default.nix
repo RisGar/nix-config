@@ -7,15 +7,17 @@
   sops-nix,
   stylix,
   zen-browser,
+  nixpkgs-overlay,
   ...
 }:
 {
   imports = [
-    sops-nix.homeManagerModules.sops
+    sops-nix.homeModules.sops
     nix-index-database.homeModules.default
     direnv-instant.homeModules.direnv-instant
     stylix.homeModules.stylix
     zen-browser.homeModules.twilight
+    nixpkgs-overlay.homeManagerModules.default
 
     ./agents
     ./browser
@@ -32,6 +34,7 @@
     ./tmux
     ./vcs
     ./wm
+    ./media
   ];
 
   options = {
@@ -75,34 +78,29 @@
     home.packages =
       with pkgs;
       [
-        # xquartz
-        create-thesis
-        ctx7
-        mediainfo
-        signal-desktop
-        nvim
-        # anki
-        pdfarranger
-        nixln-edit
-        monitorcontrol
-        bun
-        mole-mac
-        cinny-desktop
-        sops
+        nixos-rebuild
+        # xquartz # TODO
         airdrop-cli
+        aldente
         babelfish
-        beam.interpreters.erlang_28 # for gleescript
+        beamMinimal29Packages.erlang # for gleescript
         bear
+        bun
+        cinny-desktop
+        cloudflared
         csvlens
+        ctx7
         doomrunner
         ffmpeg
         github-copilot-cli
         grandperspective
+        gzdoom
         http-server
         iina
         isabelle
         julia-bin
-        libqalculate
+        just
+        libqalculate # qalc cli
         llvmPackages_latest.clang
         llvmPackages_latest.clang-manpages
         localsend
@@ -110,49 +108,58 @@
         luarocks
         man-pages
         man-pages-posix
-        moonlight-qt
+        mediainfo
+        mole-mac
         mosh
+        nerdfont-cheatsheet
+        nix-output-monitor
         nix-tree
         nixd
         nixfmt
-        nixos-rebuild
+        nixln-edit
         numi
+        nvim
         obsidian # TODO: home manager
-        # papers
+        pdfarranger
+        pdftk
         pkgconf
         podman
         podman-compose
+        poppler-utils
         presenterm
+        print-cli-rs
         prismlauncher
         raycast
         rustup
         shottr
+        signal-desktop
+        sops
         stirling-pdf
         suspicious-package
-        terminal-notifier
+        texliveFull
         thaw
+        tlrc
         tokei
         typst
-        unison-ucm
         virt-viewer
         wakatime-cli
         whatsapp-for-mac
-        xdg-ninja
+        whisper-cpp
         xz
         zotero
       ]
       ++
         # Fonts
         [
-          maple-mono.NF
+          maple-mono.NF # TODO: phase out
           maple-mono.NF-CN
           jost
           raleway
           source-sans
-          source-sans-pro
           libertinus
           hanken-grotesk
           carlito
+          cabin
         ];
 
     fonts.fontconfig.enable = true;
@@ -185,12 +192,7 @@
       nix-direnv.enable = true;
     };
 
-    # TODO:
-    # programs.direnv-instant = {
-    #   enable = true;
-    # };
-
-    programs.gpg = {
+    programs.direnv-instant = {
       enable = true;
     };
 
@@ -219,6 +221,7 @@
 
     programs.nh = {
       enable = true;
+      darwinFlake = config.vars.systemFlake;
     };
 
     programs.spotify-player = {
@@ -251,13 +254,12 @@
       ];
     };
 
-    programs.man = {
-      # Prevent warning that man is null
-      generateCaches = true;
+    programs.halloy = {
+      # enable = true;
     };
 
-    programs.halloy = {
-      enable = true;
-    };
+    # Disable warning
+    programs.man.generateCaches = false;
+
   };
 }

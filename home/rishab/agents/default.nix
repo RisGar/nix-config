@@ -1,7 +1,6 @@
 {
   config,
   lib,
-  ocrtool-mcp,
   pkgs,
   ...
 }:
@@ -25,7 +24,7 @@ in
     enable = true;
     servers = {
       ocrtool = {
-        command = lib.getExe ocrtool-mcp.packages.${pkgs.stdenv.hostPlatform.system}.default;
+        command = lib.getExe pkgs.ocrtool-mcp;
       };
       things = {
         command = lib.getExe' config.programs.uv.package "uvx";
@@ -79,4 +78,5 @@ in
     enable = true;
   };
 
+  home.file.".gemini/antigravity-cli/settings.json".force = true;
 }
