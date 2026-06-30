@@ -9,18 +9,40 @@
     shellWrapperName = "y";
     package = options.programs.yazi.package.default.override {
       extraPackages = with pkgs; [
-        clippy-mac
+        walavave-trash-cli
         exiftool
       ];
     };
     keymap = {
       mgr.prepend_keymap = [
         {
+          on = [ "R" ];
+          run = "plugin macos-trash";
+          desc = "open macos trash";
+        }
+
+        {
           on = [ "y" ];
           run = [
             "yank"
-            "plugin clippy"
+            "plugin clipboard -- --action=copy"
           ];
+        }
+
+        # TODO
+        {
+          on = [
+            "<C-p>"
+          ];
+          run = [
+            "plugin clipboard -- --action=paste"
+          ];
+        }
+
+        {
+          on = [ "<C-p>" ];
+          run = ''shell "open -a Preview \"$@\" && osascript -e 'tell application \"System Events\" to keystroke \"p\" using command down'" --confirm'';
+          desc = "print selected file via system print preview";
         }
 
         {
@@ -68,15 +90,17 @@
           run = "shell -- ya emit cd '$(git rev-parse --show-toplevel)'";
           desc = "go to git root";
         }
+
       ];
     };
 
     plugins = {
       inherit (pkgs.yaziPlugins)
-        full-border
-        clippy
-        mactag
         chmod
+        clipboard
+        full-border
+        macos-trash
+        mactag
         ;
     };
 
