@@ -11,14 +11,17 @@
     ./auth.nix
     ./disk-config.nix
     ./hardware-configuration.nix
+    ./location.nix
     ./media.nix
     ./metrics.nix
     ./nfs.nix
+    ./photos.nix
+    ./static
     ./recipes.nix
+    ./reverse-proxy.nix
     ./samba.nix
     ./torrent.nix
-    ./yopass.nix
-    ./reverse-proxy.nix
+    ./sharing.nix
   ];
 
   options = {
