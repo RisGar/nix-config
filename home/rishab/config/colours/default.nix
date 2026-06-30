@@ -25,20 +25,24 @@
     targets = {
       bat.enable = true;
       btop.enable = true;
-      lazygit.enable = true;
-      yazi.enable = true;
-      sioyek.enable = true;
-      gtk.enable = true;
-      spotify-player.enable = false; # Manual
-      tmux.enable = true;
       fish.enable = false; # Manual
       fzf.enable = false; # Manual
+      gtk.enable = true;
+      halloy.enable = true;
+      lazygit.enable = true;
+      sioyek.enable = true;
+      spotify-player.enable = false; # Manual
       starship.enable = true;
+      tmux.enable = true;
+      yazi.enable = true;
       zen-browser.enable = true;
+      jjui.enable = true;
+      # TODO: obsidian, opencode
     };
   };
 
   stylix.targets.zen-browser.profileNames = [ "default" ];
+
   xdg.configFile."fish/themes/stylix.theme".text = with config.lib.stylix.colors; ''
     # Syntax Highlighting Colors
     fish_color_normal ${base05}
