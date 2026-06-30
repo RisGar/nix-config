@@ -1,11 +1,9 @@
 name: Build Nix Configurations
 
 on:
-  push:
-    branches:
-      - main
   pull_request:
-  workflow_dispatch:
+  push:
+    branches: [main]
 
 jobs:
   build-macos:
