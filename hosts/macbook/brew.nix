@@ -37,6 +37,7 @@
       "zen"
       "zulip" # TODO: get package to work on macos
       "openvpn-connect"
+      "zotero"
       # Don't install Microsoft Office through brew as it would also rely on Microsoft AutoUpdate
     ];
   };

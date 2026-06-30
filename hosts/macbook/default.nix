@@ -131,9 +131,6 @@
           app = "${pkgs.thunderbird}/Applications/Thunderbird.app";
         }
         {
-          app = "${pkgs.devonthink}/Applications/DEVONthink 3.app";
-        }
-        {
           app = "${pkgs.signal-desktop}/Applications/Signal.app";
         }
         {
