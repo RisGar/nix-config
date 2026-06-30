@@ -45,7 +45,7 @@ in
     enable = true;
     enableMcpIntegration = true;
     settings = lib.recursiveUpdate (builtins.fromJSON (builtins.readFile ./opencode.json)) {
-      provider.morpheus.options.apiKey = "{file:${config.sops.templates."morpheus-key".path}}";
+      providers.morpheus.settings.apiKey = "{file:${config.sops.templates."morpheus-key".path}}";
     };
     skills = {
       nix-search = "${nix-search-src}/skills/nix-search/SKILL.md";
