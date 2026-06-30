@@ -1,17 +1,27 @@
-{ pkgs, config, ... }: {
-  xdg.configFile."mpv/fonts/modernz-icons.ttf".source = ./modernz-icons.ttf;
+{ pkgs, config, ... }:
+let
+  modernzSource = pkgs.mpvScripts.modernz.src;
+in
+{
+  xdg.configFile."mpv/fonts/modernz-icons.ttf".source = ./modernz-icons.ttf; # TODO: does the package not do that by itself?
   programs.mpv = {
     enable = true;
     scripts = with pkgs.mpvScripts; [
       autoload
       thumbfast
-      # thumbfast-vanilla-osc
       modernz
+      (buildLua {
+        pname = "pip-lite";
+        version = "unstable";
+        src = modernzSource;
+        scriptPath = "extras/pip-lite/pip_lite.lua";
+      })
     ];
     config = {
-      # Video & Rendering
+      # Video & Audio
       profile = "high-quality";
       vo = "gpu-next";
+      ao = "avfoundation";
       gpu-api = "vulkan";
       gpu-context = "macvk";
       hwdec = "auto-safe";
@@ -21,6 +31,7 @@
       keep-open = "yes";
       save-position-on-quit = true;
       watch-later-options-remove = "sub-pos";
+      input-right-alt-gr = "no"; # right option key as ALT
 
       # Track selection
       slang = "en,eng,enm";
@@ -58,7 +69,7 @@
       screenshot-format = "jxl";
       screenshot-png-compression = 9;
       screenshot-high-bit-depth = "no";
-      screenshot-dir = "${config.xdg.userDirs.pictures}/mpv/";
+      screenshot-dir = "${config.xdg.userDirs.pictures}/mpv";
       screenshot-template = "%F-%wH_%wM_%wS_%#02n";
 
       # Logging
