@@ -3,7 +3,6 @@ let
   modernzSource = pkgs.mpvScripts.modernz.src;
 in
 {
-  xdg.configFile."mpv/fonts/modernz-icons.ttf".source = ./modernz-icons.ttf; # TODO: does the package not do that by itself?
   programs.mpv = {
     enable = true;
     scripts = with pkgs.mpvScripts; [
@@ -22,10 +21,8 @@ in
       profile = "high-quality";
       vo = "gpu-next";
       ao = "avfoundation";
-      gpu-api = "vulkan";
-      gpu-context = "macvk";
-      hwdec = "auto-safe";
-      target-colorspace-hint = true;
+      hwdec = "videotoolbox";
+      target-colorspace-hint = "auto";
 
       ## Behavior (personal preference)
       keep-open = "yes";
