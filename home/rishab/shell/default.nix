@@ -3,32 +3,28 @@
   lib,
   config,
   osConfig,
+  self,
   ...
 }:
 let
   autoStartTmux = false;
   autoStartFastfetch = false;
 
-  # The homelab's LAN address (static in hosts/homelab/default.nix).
   homelabLan = "192.168.178.42";
 
-  # Deploys must not go through the cloudflared tunnel: activating a new
-  # configuration restarts cloudflared-tunnel-homelab-tunnel, which drops the
-  # ssh connection the activation reports to. switch-to-configuration-ng then
-  # panics writing to that dead pipe (exit 101, see nixpkgs#462179) *after*
-  # stopping every unit, leaving the host half-switched and offline. Use the
-  # `homelab` alias (homelab-reload-remote) only when not on the LAN.
-  homelabReloadBody =
-    host:
-    ''
-      set -lx NIX_SSHOPTS "-o ControlMaster=auto -o ControlPath=/tmp/ssh_mux_%h_%p_%r -o ControlPersist=10m"
-      set -l ssh_cmd ssh -o ControlMaster=auto -o ControlPath=/tmp/ssh_mux_%h_%p_%r -o ControlPersist=10m
-      set -l old_sys ($ssh_cmd ${host} readlink /run/current-system)
-      ${lib.getExe pkgs.nixos-rebuild} switch --flake ${config.vars.systemFlake}#Rishabs-Homelab --target-host ${host} --build-host ${host} --sudo --no-reexec --use-substitutes --log-format internal-json -v $argv |& ${lib.getExe pkgs.nix-output-monitor} --json
-      if test -n "$old_sys"
-        $ssh_cmd ${host} nix run nixpkgs#dix -- --color always $old_sys /run/current-system
-      end
-    '';
+  replFlakePath =
+    if builtins.pathExists "${self.outPath}/flake.nix" then
+      "${self.outPath}"
+    else
+      config.vars.systemFlake;
+  replExpr = "let flake = builtins.getFlake \"${replFlakePath}\"; pkgs = flake.legacyPackages.${pkgs.stdenv.hostPlatform.system}; in { inherit pkgs; lib = pkgs.lib; inherit (flake) darwinConfigurations nixosConfigurations; }";
+
+  homelabReloadBody = host: ''
+    set -lx NIX_SSHOPTS "-o ControlMaster=auto -o ControlPath=/tmp/ssh_mux_%h_%p_%r -o ControlPersist=10m"
+    set -l ssh_cmd ssh -o ControlMaster=auto -o ControlPath=/tmp/ssh_mux_%h_%p_%r -o ControlPersist=10m
+    ${lib.getExe pkgs.nixos-rebuild} switch --flake ${config.vars.systemFlake}#Rishabs-Homelab --target-host ${host} --build-host ${host} --sudo --no-reexec --use-substitutes --log-format internal-json -v $argv |& ${lib.getExe pkgs.nix-output-monitor} --json
+    $ssh_cmd ${host} nix run nixpkgs#dix -- --color always last 
+  '';
 in
 {
 
@@ -45,7 +41,7 @@ in
 
     cd = "z";
 
-    nixrepl = "${lib.getExe config.nix.package} repl --expr '{inherit (import <nixpkgs> {}) pkgs lib;}'";
+    nixrepl = "${lib.getExe config.nix.package} repl --expr '${replExpr}'";
     nixtree = "${lib.getExe pkgs.nix-tree} --derivation \"${config.vars.systemFlake}#darwinConfigurations.Rishabs-MacBook-Pro.config.system.build.toplevel\"";
 
     spotify-dlp = "${lib.getExe pkgs.yt-dlp} -f \"ba[ext=m4a]\" -x --audio-format m4a --embed-thumbnail --embed-metadata --sponsorblock-remove music_offtopic -o \"~/Music/Spotify/%(artist,uploader)s - %(title)s.%(ext)s\"";
@@ -115,42 +111,26 @@ in
     '';
 
     functions = {
-      # Adapted from https://gist.github.com/jsongerber/7dfd9f2d22ae060b98e15c5590c4828d
-      oil = {
-        description = "opens pre-configured ssh hosts with oil";
-        body = ''
-          set host (${lib.getExe pkgs.gnugrep} 'Host\>' ~/.ssh/config | ${lib.getExe pkgs.gnused} 's/^Host //' | ${lib.getExe pkgs.gnugrep} -v '\*' | ${lib.getExe pkgs.gum} filter --limit 1 --no-sort --fuzzy --placeholder 'Pick an ssh host' --prompt="󰣀 ")
-          if test -z "$host"
-              return 0
-          end
-          set user (ssh -G "$host" | ${lib.getExe pkgs.gnugrep} '^user\>' | ${lib.getExe pkgs.gnused} 's/^user //')
-          ${config.home.sessionVariables.EDITOR} oil-ssh://$user@$host/
-        '';
-      };
-
-      homelab-reload = {
+      homelab-reload-local = {
         description = "reloads homelab over the LAN and diffs with dix";
         body = homelabReloadBody homelabLan;
       };
 
-      # Only for when the LAN is out of reach; see homelabReloadBody for why this
-      # can leave the host half-switched.
-      homelab-reload-remote = {
+      homelab-reload = {
         description = "reloads homelab over the cloudflared tunnel and diffs with dix";
         body = homelabReloadBody "homelab";
       };
 
       reload = {
-        description = "reloads nix-darwin";
+        description = "switches to a new nix-darwin system derivation";
         body = ''
-          set -l old_sys (readlink /run/current-system)
-          sudo ${lib.getExe osConfig.system.build.darwin-rebuild} switch -I ${config.vars.systemFlake}#${config.vars.hostname} --log-format internal-json -v $argv |& ${lib.getExe pkgs.nix-output-monitor} --json
-          if test -n "$old_sys"
-            ${lib.getExe pkgs.dix} $old_sys /run/current-system
+          sudo ${lib.getExe osConfig.system.build.darwin-rebuild} switch -I ${config.vars.systemFlake}#${config.vars.hostname} --log-format internal-json -v $argv |& ${lib.getExe pkgs.nix-output-monitor} --json;
+          and begin
+            ${lib.getExe pkgs.dix} last
+            ghostty +validate-config
+            ${lib.getExe config.programs.tmux.package} source-file ~/.config/tmux/tmux.conf
+            source ~/.config/fish/config.fish
           end
-          ghostty +validate-config
-          ${lib.getExe config.programs.tmux.package} source-file ~/.config/tmux/tmux.conf
-          source ~/.config/fish/config.fish
         '';
       };
 
