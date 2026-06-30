@@ -92,7 +92,9 @@ run = ["move-node-to-workspace c"]
 [workspace-to-monitor-force-assignment]
 1 = "main"
 2 = ["secondary", "main"]
-3 = ["secondary", "main"]
+3 = ["main", "secondary"]
+4 = ["secondary", "main"]
+w = ["secondary", "main"]
 
 # 'main' binding mode declaration
 # See: https://nikitabobko.github.io/AeroSpace/guide#binding-modes
