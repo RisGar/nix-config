@@ -5,14 +5,14 @@
   lib,
   nix-index-database,
   pkgs,
-  secrets,
+  sops-nix,
   stylix,
   zen-browser,
   ...
 }:
 {
   imports = [
-    agenix.homeManagerModules.default
+    sops-nix.homeManagerModules.sops
     nix-index-database.homeModules.default
     direnv-instant.homeModules.direnv-instant
     stylix.homeModules.stylix
@@ -59,9 +59,13 @@
     targets.darwin.linkApps.enable = true;
     targets.darwin.copyApps.enable = false;
 
-    age = {
-      inherit secrets;
-      identityPaths = [ (config.home.homeDirectory + "/.ssh/agenix") ];
+    sops = {
+      age.sshKeyPaths = [ "${config.home.homeDirectory}/.ssh/sops" ];
+      defaultSopsFile = "${config.vars.systemFlake}/hosts/macbook/secrets.yaml";
+      secrets = {
+        context7 = { };
+        openrouter = { };
+      };
     };
 
     vars.systemFlake = "/private/etc/nix-darwin";
@@ -83,7 +87,7 @@
         bun
         mole-mac
         cinny-desktop
-        pkgs.agenix
+        sops
         airdrop-cli
         babelfish
         beam.interpreters.erlang_28 # for gleescript

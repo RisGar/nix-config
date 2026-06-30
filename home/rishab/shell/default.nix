@@ -92,8 +92,8 @@ in
     generateCompletions = true;
 
     shellInit = ''
-      set -gx CONTEXT7_API_KEY (string trim < ${config.age.secrets.context7.path})
-      set -gx OPENROUTER_API_KEY (string trim < ${config.age.secrets.openrouter.path})
+      set -gx CONTEXT7_API_KEY (string trim < ${config.sops.secrets.context7.path})
+      set -gx OPENROUTER_API_KEY (string trim < ${config.sops.secrets.openrouter.path})
 
       set fish_cursor_default block blink
       set fish_cursor_insert line blink

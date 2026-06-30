@@ -1,0 +1,18 @@
+keys:
+  - &macbook age1pp3qtm2hg4fmnzmsv84x44dxyp99r69m0q06eydagtawccxvjynsg3epna
+  - &homelab age1xqtz8lkf23f4py7r034wmtfra93dc9x9y70w4gq8uutefgrazgqquhlfvd
+
+creation_rules:
+  - path_regex: hosts/homelab/secrets.yaml$
+    key_groups:
+      - age:
+          - *macbook
+          - *homelab
+  - path_regex: hosts/vps/secrets.yaml$
+    key_groups:
+      - age:
+          - *macbook
+  - path_regex: hosts/macbook/secrets.yaml$
+    key_groups:
+      - age:
+          - *macbook
