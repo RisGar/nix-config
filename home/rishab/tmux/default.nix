@@ -34,6 +34,9 @@
       set -g focus-events on
       set -g detach-on-destroy off  # don't exit from tmux when closing a session
 
+      # Force popup windows to use a transparent background
+      set -g popup-style 'bg=default'
+      set -g popup-border-style 'bg=default'
 
       set -g clock-mode-style 24
 
