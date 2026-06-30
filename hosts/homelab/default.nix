@@ -11,13 +11,14 @@
     ./auth.nix
     ./disk-config.nix
     ./hardware-configuration.nix
+    ./media.nix
     ./metrics.nix
     ./nfs.nix
     ./recipes.nix
     ./samba.nix
     ./torrent.nix
     ./yopass.nix
-    ./revserse-proxy.nix
+    ./reverse-proxy.nix
   ];
 
   options = {
@@ -25,14 +26,31 @@
       type = lib.types.attrs;
       default = { };
     };
-    ports = lib.mkOption {
-      type = lib.types.attrs;
-      default = { };
-    };
   };
 
   # nixos-anywhere --flake .#homelab --generate-hardware-config nixos-generate-config ./hosts/homelab/hardware-configuration.nix <hostname>
   config = {
+    sops = {
+      defaultSopsFile = ./secrets.yaml;
+      age.sshKeyPaths = [ "/etc/ssh/ssh_host_ed25519_key" ];
+      secrets = {
+        "anilist-mal-sync" = { };
+        "nordvpn" = { };
+        "pocket-id" = { };
+        "tandoor" = { };
+        "tinyauth" = { };
+        "cloudflared-creds" = {
+          owner = "cloudflared";
+        };
+        "user-rishab" = {
+          neededForUsers = true;
+        };
+        "user-root" = {
+          neededForUsers = true;
+        };
+      };
+    };
+
     boot = {
       loader.systemd-boot = {
         enable = true;
@@ -42,13 +60,14 @@
 
       supportedFilesystems = [ "zfs" ];
       kernelParams = [ "zfs.zfs_arc_max=6442450944" ];
+
+      zfs.forceImportRoot = false; # TODO: ?
+
+      growPartition = false;
     };
 
     services.zfs.autoScrub.enable = true;
     services.zfs.autoScrub.interval = "weekly";
-
-    nixpkgs.overlays = [
-    ];
 
     nixpkgs.config = {
       allowBroken = true;
@@ -69,12 +88,12 @@
     };
 
     users.users.root = {
-      hashedPasswordFile = config.age.secrets.user-root.path;
+      hashedPasswordFile = config.sops.secrets.user-root.path;
     };
 
     users.users.rishab = {
       isNormalUser = true;
-      hashedPasswordFile = config.age.secrets.user-rishab.path;
+      hashedPasswordFile = config.sops.secrets.user-rishab.path;
       description = "default user";
       extraGroups = [
         "networkmanager"
@@ -88,8 +107,15 @@
       ];
     };
 
+    users.users.cloudflared = {
+      isSystemUser = true;
+      group = "cloudflared";
+    };
+    users.groups.cloudflared = {};
+
     system.stateVersion = "26.05";
 
+    nix.package = pkgs.lixPackageSets.stable.lix;
     nix.settings = {
       trusted-users = [
         "@wheel"
@@ -97,7 +123,7 @@
       experimental-features = [
         "nix-command"
         "flakes"
-        "pipe-operator"
+        # "pipe-operator"
       ];
     };
 
@@ -148,25 +174,21 @@
       execWheelOnly = true;
     };
 
-    ports.librespeed = 8989;
-    # TODO: serve frontend on caddy
+    apps."speed" = {
+      port = 8989;
+
+      forwardAuth = true;
+    };
+
     services.librespeed = {
       enable = true;
-      domain = "speed.rishab.org";
-      settings.listen_port = config.ports.librespeed;
+      domain = config.apps."speed".hostname;
+      settings.listen_port = config.apps."speed".port;
       frontend = {
         enable = true;
         useNginx = false;
-        contactEmail = "contact@rishab-garg.de";
+        contactEmail = "privacy@${config.vars.FQDN}";
       };
-    };
-
-    services.caddy.virtualHosts = {
-      "speed.rishab.org".extraConfig = ''
-        import tinyauth_forwarder
-        reverse_proxy 127.0.0.1:${toString config.ports.librespeed}
-      '';
-
     };
 
     # services.karakeep = {
@@ -177,12 +199,13 @@
     #   volumes = [
     #     "tokens:/home/appuser/.config/anilist-mal-sync"
     #   ];
-    #   environmentFiles = [ config.age.secrets.anilist-mal-sync.path ];
+    #   environmentFiles = [ config.sops.secrets.anilist-mal-sync.path ];
     #   environment = {
     #     WATCH_INTERVAL = "12h";
     #   };
     #   ports = [ "18080:18080" ];
     #   image = "ghcr.io/bigspawn/anilist-mal-sync:latest";
     # };
+
   };
 }

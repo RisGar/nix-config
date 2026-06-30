@@ -1,10 +1,10 @@
 { config, ... }:
 
 let
-  tandoorPort = config.ports.tandoor;
+  tandoorPort = config.apps."recipes".port;
 in
 {
-  ports.tandoor = 8082;
+
 
   services.tandoor-recipes = {
     enable = true;
@@ -21,25 +21,33 @@ in
       ENABLE_SIGNUP = "0";
       HIDE_LOGIN_FORM = "1";
       SOCIAL_DEFAULT_ACCESS = "1";
-      ALLOWED_HOSTS = "recipes.rishab.org";
+      ALLOWED_HOSTS = config.apps."recipes".hostname;
 
       ALLAUTH_TRUSTED_PROXY_COUNT = "1";
     };
   };
 
   systemd.services.tandoor-recipes.serviceConfig.EnvironmentFile = [
-    config.age.secrets.tandoor.path
+    config.sops.secrets.tandoor.path
   ];
 
-  # Based on https://github.com/TandoorRecipes/recipes/blob/develop/http.d/Recipes.conf.template
-  services.caddy.virtualHosts."recipes.rishab.org".extraConfig = ''
-    handle_path /media/* {
-      root * /var/lib/tandoor-recipes/recipes/media
-      file_server
-    }
+  apps."recipes" = {
+    port = 8082;
 
-    reverse_proxy 127.0.0.1:${toString config.ports.tandoor}
-  '';
+    content = ''
+      handle_path /media/* {
+        root * /var/lib/tandoor-recipes/recipes/media
+        file_server
+      }
+      handle_path /static/* {
+        root * /var/lib/tandoor-recipes/recipes/static
+        file_server
+      }
+      handle {
+        reverse_proxy 127.0.0.1:${toString config.apps."recipes".port}
+      }
+    '';
+  };
 
   users.users.caddy.extraGroups = [ "tandoor_recipes" ];
 
