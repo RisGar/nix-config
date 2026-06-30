@@ -19,38 +19,13 @@
         StrictHostKeyChecking = "accept-new";
       };
 
-      # TODO
-      "hostinger" = {
-        Hostname = "89.117.169.136";
-        User = "u797478303";
-        Port = 65002;
-        IdentityFile = "~/.ssh/hostinger";
-        ServerAliveInterval = 240;
-      };
-
-      "gargnas" = {
-        Hostname = "gargnas.internal";
-        User = "Rishab";
-        Port = 223;
-      };
-
       "lxhalle" = {
         Hostname = "lxhalle.cit.tum.de";
         User = "gargr";
       };
 
-      "proxmox" = {
-        Hostname = "proxmox.internal";
-        User = "root";
-      };
-
-      "debian" = {
-        Hostname = "debian.internal";
-        User = "docker";
-      };
-
       "homelab" = {
-        Hostname = "homelab.internal";
+        Hostname = "192.168.178.42";
         User = "rishab";
       };
 
@@ -59,12 +34,7 @@
         User = "garg";
       };
 
-      "itsec" = {
-        Hostname = "sandkasten.sec.in.tum.de";
-        User = "team-263";
-      };
-
-      "pangolin" = {
+      "vps" = {
         Hostname = "85.215.138.48";
         User = "root";
       };
