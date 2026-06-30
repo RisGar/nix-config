@@ -31,26 +31,25 @@
     (final: prev: {
       clippy-mac = prev.callPackage ../../pkgs/clippy-mac.nix { };
       thaw = prev.callPackage ../../pkgs/thaw.nix { };
-      mole-mac = prev.callPackage ../../pkgs/mole-mac.nix { }; # TODO: fix
+      mole-mac = prev.callPackage ../../pkgs/mole-mac.nix { };
       dragterm = prev.callPackage ../../pkgs/dragterm.nix { };
+      walavave-trash-cli = prev.callPackage ../../pkgs/walavave-trash-cli.nix { };
       create-thesis = prev.callPackage ../../pkgs/create-thesis.nix { };
+      ekctl = prev.callPackage ../../pkgs/ekctl.nix { };
 
-      inherit (prev.lixPackageSets.stable)
-        nixpkgs-review
-        nix-eval-jobs
-        nix-fast-build
-        colmena
-        ;
+      logseq = (
+        let
+          pkgs' = import (fetchTarball {
+            url = "https://github.com/NixOS/nixpkgs/archive/ec0c722e017dfccbb2f66a8aafbe003320266d33.tar.gz";
+            sha256 = "0jws2i94asr1yish76799gmyw51dj98n8badq3snc8prifmsd3a5";
+          }) { system = pkgs.stdenv.hostPlatform.system; };
+        in
+        pkgs'.logseq
+      );
 
-      whatsapp-for-mac = prev.whatsapp-for-mac.overrideAttrs (old: rec {
-        version = "2.26.22.20";
-        src = prev.fetchzip {
-          extension = "zip";
-          name = "WhatsApp.app";
-          url = "https://web.whatsapp.com/desktop/mac_native/release/?version=${version}&extension=zip&configuration=Release&branch=master";
-          hash = "sha256-tEE590f8h6rO2BBLjBxrrZx+i8fGHct1ojOJf2M/vQM=";
-        };
-      });
+      signal-desktop = prev.signal-desktop.override {
+        withAppleEmojis = true;
+      };
 
       nvim = prev.callPackage nvim-config {
         jdks = with prev; [
@@ -63,13 +62,13 @@
       nixln-edit = prev.callPackage nixln-edit { };
 
       yaziPlugins = prev.yaziPlugins // {
-        clippy = prev.callPackage (
+        macos-trash = prev.callPackage (
           {
             fetchFromGitHub,
           }:
           prev.yaziPlugins.mkYaziPlugin {
-            pname = "clippy.yazi";
-            version = "0-unstable-2025-08-25";
+            pname = "macos-trash.yazi";
+            version = "unstable-2026-06-22";
 
             installPhase = ''
               runHook preInstall
@@ -80,15 +79,15 @@
             '';
 
             src = fetchFromGitHub {
-              owner = "Gallardo994";
-              repo = "clippy.yazi";
-              rev = "8ce55413976ebd1922dbc4fc27ced9776823df54";
-              hash = "sha256-oB9DkNWvUDbSAPnxtv56frlWWYz5vtu2BJVvWH/Uags=";
+              owner = "walavave";
+              repo = "macos-trash.yazi";
+              rev = "130e6dd80d544b97016c877251dc7d51a0aac5a0";
+              hash = "sha256-A3nUll80LWWZcbX+2GjGUQA5lMbQPBwYKfOT+Sir24k=";
             };
 
             meta = {
-              description = "Clippy integration for Yazi file manager";
-              homepage = "https://github.com/Gallardo994/clippy.yazi";
+              description = "macOS trash plugin for Yazi";
+              homepage = "https://github.com/walavave/macos-trash.yazi";
               license = lib.licenses.mit;
             };
           }
@@ -111,23 +110,31 @@
   system.configurationRevision = self.rev or self.dirtyRev or null;
 
   nix = {
-    package = pkgs.lixPackageSets.stable.lix;
-    linux-builder.enable = true;
-    optimise.automatic = true;
+    # linux-builder = {
+    #   enable = true;
+    #   systems = [
+    #     "x86_64-linux"
+    #     "aarch64-linux"
+    #   ];
+    #   config.boot.binfmt.emulatedSystems = [ "x86_64-linux" ];
+    # };
+
+    settings = {
+      trusted-users = [ "@admin" ];
+      auto-optimise-store = true;
+      sandbox = true;
+
+      experimental-features = [
+        "nix-command"
+        "flakes"
+        "pipe-operator"
+      ];
+    };
+
+    gc.automatic = true;
+
+    channel.enable = false;
   };
-
-  # Necessary for using flakes on this system.
-  nix.settings = {
-    trusted-users = [ "rishab" ];
-
-    experimental-features = [
-      "nix-command"
-      "flakes"
-      "pipe-operator"
-    ];
-  };
-
-  nix.channel.enable = false;
 
   # User setup
   system.primaryUser = "rishab";
