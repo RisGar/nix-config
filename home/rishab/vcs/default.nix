@@ -82,11 +82,9 @@ in
           show-cryptographic-signatures = true;
         };
 
-        git = {
-          sign-on-push = true;
-          colocate = false;
-        };
+        git.colocate = false;
 
+        revsets.git-sign-on-push = "~signed() & mine()";
       };
     };
 
