@@ -41,7 +41,20 @@
         "nordvpn" = { };
         "pocket-id" = { };
         "tandoor" = { };
-        "tinyauth" = { };
+        "caddy-oidc" = {
+          owner = "caddy";
+        };
+        "dawarich" = { };
+        "stump" = {
+          owner = "stump";
+        };
+        "immich-oauth-client-secret" = { }; # immich reads this through settings.oauth.clientSecret._secret
+        "grafana/env" = {
+          owner = "grafana";
+        };
+        "grafana/secret-key" = {
+          owner = "grafana";
+        };
         "cloudflared-creds" = {
           owner = "cloudflared";
         };
@@ -107,6 +120,7 @@
         "wheel"
         "podman"
         "samba"
+        "transmission" # write access to the transmission download dir
         "users"
       ];
       openssh.authorizedKeys.keys = [
@@ -118,7 +132,7 @@
       isSystemUser = true;
       group = "cloudflared";
     };
-    users.groups.cloudflared = {};
+    users.groups.cloudflared = { };
 
     system.stateVersion = "26.05";
 
@@ -183,8 +197,7 @@
 
     apps."speed" = {
       port = 8989;
-
-      forwardAuth = true;
+      access = "authenticated";
     };
 
     services.librespeed = {
@@ -213,6 +226,5 @@
     #   ports = [ "18080:18080" ];
     #   image = "ghcr.io/bigspawn/anilist-mal-sync:latest";
     # };
-
   };
 }

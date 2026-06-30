@@ -221,7 +221,13 @@ in
   # 4. Expose WebUI via Caddy
   apps."torrent" = rec {
     port = 9091;
-    adminOnly = true;
+    # Deliberately left at "public": this vhost needs a different auth decision
+    # per request (HTTP Basic for Transmission RPC clients, Pocket ID for
+    # browsers), so the `oidc` handler is applied inside the fallback `handle`
+    # below instead of being injected for the whole vhost. An `oidc` handler at
+    # the vhost level is ordered before `handle` and would reject the Basic
+    # auth path before `basicauth` ever runs, so `access = "admin"` cannot be
+    # used here. The `import oidc_admin` below is the source of truth.
     content = ''
       @has_auth {
         header Authorization Basic*
@@ -235,7 +241,7 @@ in
       }
 
       handle {
-        import tinyauth_forwarder
+        import oidc_admin
         reverse_proxy ${vethNetns}:${toString port}
       }
     '';
