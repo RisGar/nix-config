@@ -5,7 +5,7 @@
   ...
 }:
 let
-  fd = lib.getExe config.programs.fd.package;
+  projectDir = config.xdg.userDirs.projects;
   sesh = lib.getExe config.programs.sesh.package;
   tmux = lib.getExe config.programs.tmux.package;
   tldr = lib.getExe pkgs.tlrc;
@@ -73,17 +73,21 @@ in
           output = "{strip_ansi|split: :1..|join: }";
           command = [
             {
-              name = "All";
+              name = "Sesh";
               run = "${sesh} list --icons";
             }
             {
               name = "Projects";
-              run = "${lib.getExe config.programs.eza.package} -D -1 ${config.xdg.userDirs.projects} | ${lib.getExe pkgs.gnused} 's/^/󰉋 /'";
+              run = "${lib.getExe config.programs.eza.package} -D -1 ${projectDir} | ${lib.getExe pkgs.gnused} 's/^/󰉋 /'";
+            }
+            {
+              name = "Search";
+              run = "${lib.getExe config.programs.fd.package} -H -d 2 -t d -E .Trash . ~";
             }
           ];
         };
         preview = {
-          command = "set res '{strip_ansi|split: :1..|join: }'; if test -d \"${config.xdg.userDirs.projects}/$res\"; ${sesh} preview \"${config.xdg.userDirs.projects}/$res\"; else; ${sesh} preview \"$res\"; end";
+          command = "set res '{strip_ansi|split: :1..|join: }'; if ${tmux} has-session -t \"=$res\" 2>/dev/null; ${sesh} preview \"$res\"; else if test -d \"${projectDir}/$res\"; ${sesh} preview \"${projectDir}/$res\"; else; ${sesh} preview \"$res\"; end";
         };
         keybindings = {
           enter = "actions:connect";
@@ -95,7 +99,7 @@ in
         actions = {
           connect = {
             description = "Connect to selected session";
-            command = "set res '{strip_ansi|split: :1..|join: }'; if test -d \"${config.xdg.userDirs.projects}/$res\"; ${sesh} connect \"${config.xdg.userDirs.projects}/$res\"; else; ${sesh} connect \"$res\"; end";
+            command = "set res '{strip_ansi|split: :1..|join: }'; if ${tmux} has-session -t \"=$res\" 2>/dev/null; ${sesh} connect \"$res\"; else if test -d \"${projectDir}/$res\"; ${sesh} connect \"${projectDir}/$res\"; else; ${sesh} connect \"$res\"; end";
             mode = "execute";
           };
           kill_session = {
