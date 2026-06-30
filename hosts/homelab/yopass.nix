@@ -1,5 +1,7 @@
-{ ... }:
+{ config, ... }:
 {
+  ports.yopass = "8282";
+
   services.memcached = {
     enable = true;
   };
@@ -8,7 +10,7 @@
     image = "jhaals/yopass";
     environment = {
       TRUSTED_PROXIES = "pass.rishab.org";
-      PORT = "8282";
+      PORT = config.ports.yopass;
       DISABLE_FEATURES = "true";
       DISABLE_UPLOAD = "true";
       METRICS_PORT = "9144";
@@ -20,4 +22,7 @@
       "host"
     ];
   };
+
+  services.caddy.virtualHosts."pass.rishab.org".extraConfig =
+    "reverse_proxy 127.0.0.1:${toString config.ports.yopass}";
 }

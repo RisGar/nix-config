@@ -7,49 +7,59 @@
 {
 
   imports = [
+    ./ai.nix
     ./auth.nix
-    ./dashboard.nix
     ./disk-config.nix
-    ./dnscrypt-proxy.nix
     ./hardware-configuration.nix
     ./metrics.nix
     ./nfs.nix
+    ./recipes.nix
     ./samba.nix
-    ./transmission.nix
+    ./torrent.nix
     ./yopass.nix
+    ./revserse-proxy.nix
   ];
 
   options = {
-    vars = lib.mkOption { };
+    vars = lib.mkOption {
+      type = lib.types.attrs;
+      default = { };
+    };
+    ports = lib.mkOption {
+      type = lib.types.attrs;
+      default = { };
+    };
   };
 
   # nixos-anywhere --flake .#homelab --generate-hardware-config nixos-generate-config ./hosts/homelab/hardware-configuration.nix <hostname>
   config = {
+    boot = {
+      loader.systemd-boot = {
+        enable = true;
+        editor = false;
+      };
+      loader.efi.canTouchEfiVariables = true;
 
-    services.qemuGuest.enable = true;
+      supportedFilesystems = [ "zfs" ];
+      kernelParams = [ "zfs.zfs_arc_max=6442450944" ];
+    };
+
+    services.zfs.autoScrub.enable = true;
+    services.zfs.autoScrub.interval = "weekly";
+
+    nixpkgs.overlays = [
+    ];
 
     nixpkgs.config = {
       allowBroken = true;
       allowUnfree = true;
     };
 
-    boot = {
-      loader.grub = {
-        enable = true;
-        efiSupport = true;
-        efiInstallAsRemovable = true;
-      };
-
-      growPartition = true;
-    };
-
     environment.systemPackages = with pkgs; [
       vim
       git
-      podman-compose
     ];
 
-    # security.sudo.wheelNeedsPassword = false; # Don't ask for passwords
     services.openssh = {
       enable = true;
       settings = {
@@ -58,15 +68,13 @@
       };
     };
 
-    programs.ssh.startAgent = true;
-
     users.users.root = {
-      hashedPasswordFile = config.age.secrets.homelab-root.path;
+      hashedPasswordFile = config.age.secrets.user-root.path;
     };
 
     users.users.rishab = {
       isNormalUser = true;
-      hashedPasswordFile = config.age.secrets.homelab-rishab.path;
+      hashedPasswordFile = config.age.secrets.user-rishab.path;
       description = "default user";
       extraGroups = [
         "networkmanager"
@@ -80,7 +88,7 @@
       ];
     };
 
-    system.stateVersion = "25.11";
+    system.stateVersion = "26.05";
 
     nix.settings = {
       trusted-users = [
@@ -89,7 +97,7 @@
       experimental-features = [
         "nix-command"
         "flakes"
-        "pipe-operators"
+        "pipe-operator"
       ];
     };
 
@@ -108,12 +116,14 @@
       };
       "/export/external" = {
         device = "/mnt/external";
+        fsType = "none";
         options = [ "bind" ];
       };
     };
 
     networking = {
       hostName = "Rishabs-Homelab";
+      hostId = "a526fc5e";
 
       firewall.enable = true;
 
@@ -121,8 +131,8 @@
 
       defaultGateway = "192.168.178.1";
       nameservers = [
-        "1.1.1.1"
-        "8.8.8.8"
+        "9.9.9.11"
+        "149.112.112.11"
       ];
 
       interfaces.ens18.ipv4.addresses = [
@@ -138,34 +148,25 @@
       execWheelOnly = true;
     };
 
-    services.newt = {
-      enable = true;
-      settings = {
-        endpoint = "https://pangolin.rishab.org";
-        docker-socket = "unix:///var/run/docker.sock";
-      };
-      environmentFile = config.age.secrets.newt.path;
-    };
-
-    services.stirling-pdf = {
-      enable = true;
-      # environment = {
-      #   SECURITY_ENABLELOGIN = "true";
-      # };
-    };
-
+    ports.librespeed = 8989;
+    # TODO: serve frontend on caddy
     services.librespeed = {
       enable = true;
+      domain = "speed.rishab.org";
+      settings.listen_port = config.ports.librespeed;
       frontend = {
         enable = true;
+        useNginx = false;
         contactEmail = "contact@rishab-garg.de";
-        servers = [
-          {
-            name = "Homelab";
-            server = "//speed.rishab.org";
-          }
-        ];
       };
+    };
+
+    services.caddy.virtualHosts = {
+      "speed.rishab.org".extraConfig = ''
+        import tinyauth_forwarder
+        reverse_proxy 127.0.0.1:${toString config.ports.librespeed}
+      '';
+
     };
 
     # services.karakeep = {
@@ -182,12 +183,6 @@
     #   };
     #   ports = [ "18080:18080" ];
     #   image = "ghcr.io/bigspawn/anilist-mal-sync:latest";
-    # };
-
-    # services.open-webui = {
-    #   enable = true;
-    #   port = 1213;
-    #   environmentFile = config.age.secrets.open-webui.path;
     # };
   };
 }

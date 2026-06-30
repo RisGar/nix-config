@@ -20,7 +20,7 @@
 
   system.activationScripts = {
     init_smbpasswd.text = ''
-      /run/current-system/sw/bin/printf "$(/run/current-system/sw/bin/cat ${config.age.secrets.homelab-rishab.path})\n$(/run/current-system/sw/bin/cat ${config.age.secrets.homelab-rishab.path})\n" | /run/current-system/sw/bin/smbpasswd -sa rishab
+      /run/current-system/sw/bin/printf "$(/run/current-system/sw/bin/cat ${config.age.secrets.user-rishab.path})\n$(/run/current-system/sw/bin/cat ${config.age.secrets.user-rishab.path})\n" | /run/current-system/sw/bin/smbpasswd -sa rishab
     '';
   };
 }

@@ -1,13 +1,19 @@
 { config, ... }:
 {
+  ports.grafana = 3000;
+
   services.grafana = {
     enable = true;
     settings = {
       server = {
         http_addr = "127.0.0.1";
         http_port = 3000;
+        http_port = config.ports.grafana;
         enable_gzip = true;
         root_url = "https://metrics.rishab.org";
+      };
+
+      security = {
       };
 
       # auth.disable_login_form = true;
@@ -90,4 +96,7 @@
       }
     ];
   };
+
+  services.caddy.virtualHosts."metrics.rishab.org".extraConfig =
+    "reverse_proxy 127.0.0.1:${toString config.ports.grafana}";
 }
