@@ -18,6 +18,15 @@
     keymap = {
       mgr.prepend_keymap = [
         {
+          on = [
+            "c"
+            "a"
+            "a"
+          ];
+          run = [ "plugin compress" ];
+          desc = "archive selected files";
+        }
+        {
           on = [ "y" ];
           run = [
             "yank"
@@ -90,8 +99,8 @@
         chmod
         clipboard
         full-border
-        macos-trash
         mactag
+        compress
         ;
     };
 
