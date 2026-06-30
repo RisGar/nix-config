@@ -1,0 +1,64 @@
+{
+  "$schema": "https://opencode.ai/config.json",
+  "model": "morpheus/cyankiwi/Qwen3.8-Flash-Next-AWQ-INT4",
+  "provider": {
+    "morpheus": {
+      "npm": "@ai-sdk/openai-compatible",
+      "name": "Morpheus",
+      "options": {
+        "baseURL": "https://morpheus.cit.tum.de/api/v1"
+      },
+      "models": {
+        "google/gemma-4-31B-it": {
+          "name": "Gemma 4 (31B)",
+          "tool_call": true,
+          "attachment": true,
+          "limit": {
+            "context": 262144,
+            "output": 32768
+          },
+          "modalities": {
+            "input": [
+              "text",
+              "image"
+            ],
+            "output": [
+              "text"
+            ]
+          },
+          "options": {
+            "chat_template_kwargs": {
+              "enable_thinking": true
+            }
+          }
+        },
+        "cyankiwi/Qwen3.8-Flash-Next-AWQ-INT4": {
+          "name": "Qwen 3.8 Flash Next (AWQ INT4)",
+          "tool_call": true,
+          "attachment": true,
+          "reasoning": true,
+          "limit": {
+            "context": 262144,
+            "output": 32768
+          },
+          "modalities": {
+            "input": [
+              "text",
+              "image"
+            ],
+            "output": [
+              "text"
+            ]
+          },
+          "options": {
+            "chat_template_kwargs": {
+              "enable_thinking": true,
+              "preserve_thinking": true
+            },
+            "reasoning_effort": "medium"
+          }
+        }
+      }
+    }
+  }
+}
