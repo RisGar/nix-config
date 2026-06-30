@@ -14,6 +14,19 @@
     ];
 
     casks = [
+      # "bookends"
+      "endnote"
+      "gog-galaxy"
+      "grammarly-desktop"
+      "middle"
+      "moneymoney"
+      "nextcloud"
+      "pdf-pals"
+      "steermouse"
+      "timemator"
+      "tower"
+      "ukelele"
+
       "affinity"
       "beeper"
       "boinc"
@@ -24,7 +37,6 @@
       "hyperkey"
       "macs-fan-control"
       "nordvpn"
-      "onyx"
       "pearcleaner"
       "prusaslicer"
       "qlmarkdown"
@@ -33,14 +45,15 @@
       "steam"
       "telegram" # nixpkgs only has telegram-desktop, not telegram-swift
       "transmission-remote-gui"
-      "tunnelblick"
-      "visual-studio-code"
       "xquartz" # TODO: make ssh -X via nix work
       "yubico-authenticator"
       "zen"
-      "zoom"
       "zulip"
-      "hewigovens/tap/jayjay"
+      "keka"
+      "handbrake-app"
+      "nheko" # On nix the app is German???? and the buttons look wrong
+      "ferdium"
+      # Don't install Microsoft Office through brew as it would also rely on Microsoft AutoUpdate
     ];
   };
 }
