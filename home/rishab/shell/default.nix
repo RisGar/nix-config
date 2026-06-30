@@ -2,6 +2,7 @@
   pkgs,
   lib,
   config,
+  options,
   osConfig,
   ...
 }:
@@ -68,7 +69,6 @@ in
     GHCUP_USE_XDG_DIRS = 1;
     STACK_XDG = 1;
     KAGGLE_CONFIG_DIR = "${config.xdg.configHome}/kaggle";
-    RUSTUP_HOME = "${config.xdg.dataHome}/rustup";
     CARGO_HOME = "${config.xdg.dataHome}/cargo";
     WAKATIME_HOME = "${config.xdg.configHome}/wakatime";
     UNISON = "${config.xdg.dataHome}/unison";
@@ -229,4 +229,9 @@ in
     enableTransience = true;
     settings = fromTOML (builtins.readFile ./starship.toml);
   };
+
+  home.packages = with pkgs; [
+    starship-jj
+  ];
+
 }
