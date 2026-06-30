@@ -9,6 +9,7 @@
       home-manager,
       homebrew-cask,
       homebrew-core,
+      hewigovens-tap,
       lix-module,
       mlpreview,
       nix-darwin,
@@ -73,8 +74,9 @@
               taps = {
                 "homebrew/homebrew-core" = homebrew-core;
                 "homebrew/homebrew-cask" = homebrew-cask;
+                "hewigovens/homebrew-tap" = hewigovens-tap;
               };
-              # mutableTaps = true;
+              mutableTaps = false;
             };
           }
 
@@ -192,6 +194,10 @@
     };
     homebrew-cask = {
       url = "github:homebrew/homebrew-cask";
+      flake = false;
+    };
+    hewigovens-tap = {
+      url = "github:hewigovens/tap";
       flake = false;
     };
   };

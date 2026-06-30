@@ -312,6 +312,22 @@
         "type": "github"
       }
     },
+    "hewigovens-tap": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1782463753,
+        "narHash": "sha256-dz0mM6UPevRdT8qe0ocOx4m8TboXqwU6Xub4mnxVoek=",
+        "owner": "hewigovens",
+        "repo": "tap",
+        "rev": "2cfbade5ab431778c3ac77755aac6c1f5ed91b68",
+        "type": "github"
+      },
+      "original": {
+        "owner": "hewigovens",
+        "repo": "tap",
+        "type": "github"
+      }
+    },
     "home-manager": {
       "inputs": {
         "nixpkgs": [
@@ -569,11 +585,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1782581987,
-        "narHash": "sha256-OMA+Zbpsim/P9CdzM2jnc2yGK0crMNGgFQ0GcZ2V45o=",
+        "lastModified": 1782823318,
+        "narHash": "sha256-/OrKOUESo+lY0aWZMXgZXlVqXVsfKMBISl2496X+a7E=",
         "owner": "RisGar",
         "repo": "nvim-config",
-        "rev": "2979534606cf22d3247a3e216a8fe937ee4f4232",
+        "rev": "f693b37faecfb2c69239970d59f413696b9d672b",
         "type": "github"
       },
       "original": {
@@ -608,6 +624,7 @@
         "base16-schemes": "base16-schemes",
         "direnv-instant": "direnv-instant",
         "disko": "disko",
+        "hewigovens-tap": "hewigovens-tap",
         "home-manager": "home-manager_2",
         "homebrew-cask": "homebrew-cask",
         "homebrew-core": "homebrew-core",

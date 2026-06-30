@@ -40,6 +40,7 @@
       "zen"
       "zoom"
       "zulip"
+      "hewigovens/tap/jayjay"
     ];
   };
 }
