@@ -1,0 +1,35 @@
+From 650d560a0b34e5ca79ea6d147031dcb2735101dd Mon Sep 17 00:00:00 2001
+From: Anish Pallati <i@anish.land>
+Date: Mon, 12 Oct 2026 04:14:18 -0400
+Subject: [PATCH] go-mockery: 3.8.0 -> 3.8.1
+
+Signed-off-by: Anish Pallati <i@anish.land>
+---
+ pkgs/by-name/go/go-mockery/package.nix | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
+
+diff --git a/pkgs/by-name/go/go-mockery/package.nix b/pkgs/by-name/go/go-mockery/package.nix
+index f567cf7489782..f99734139e0fa 100644
+--- a/pkgs/by-name/go/go-mockery/package.nix
++++ b/pkgs/by-name/go/go-mockery/package.nix
+@@ -10,17 +10,17 @@
+ 
+ buildGoModule (finalAttrs: {
+   pname = "go-mockery";
+-  version = "3.8.0";
++  version = "3.8.1";
+ 
+   src = fetchFromGitHub {
+     owner = "vektra";
+     repo = "mockery";
+     tag = "v${finalAttrs.version}";
+-    hash = "sha256-T+z1IWpMUJr0729Q7bhHPu2hfxWxqjlUFLx143Ko58g=";
++    hash = "sha256-HCbnifYWE/3CG85dt0FPWT9hLSQbgOXuOKTBJHO0S2U=";
+   };
+ 
+   proxyVendor = true;
+-  vendorHash = "sha256-ockGzV+nj/O6iRcscmhfx220TqJ8LACER/pOPqs21tY=";
++  vendorHash = "sha256-ksfAHdPdOd8ELS0CSBg+E7KPd5xX/uGeLPn9HiItjdI=";
+ 
+   ldflags = [
+     "-s"

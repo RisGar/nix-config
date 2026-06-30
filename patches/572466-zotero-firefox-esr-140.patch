@@ -1,0 +1,216 @@
+From abfd73f84c823ed3353e1e9ac485b1fbdda29bdc Mon Sep 17 00:00:00 2001
+From: Mynacol <git@mynacol.xyz>
+Date: Thu, 1 Oct 2026 12:05:59 +0000
+Subject: [PATCH] zotero: fix build by reviving prebuilt Firefox 140 ESR
+
+This re-adds a local Firefox ESR 140 for Zotero, which strictly needs
+this Firefox version for now.
+
+The in-development Zotero version 11 will add support for Firefox ESR 153,
+at which point we can drop this code again.
+
+Assisted-by: Opencode + Claude Opus 5
+---
+ .../by-name/zo/zotero/firefox-esr-140-bin.nix | 150 ++++++++++++++++++
+ pkgs/by-name/zo/zotero/package.nix            |   8 +-
+ 2 files changed, 155 insertions(+), 3 deletions(-)
+ create mode 100644 pkgs/by-name/zo/zotero/firefox-esr-140-bin.nix
+
+diff --git a/pkgs/by-name/zo/zotero/firefox-esr-140-bin.nix b/pkgs/by-name/zo/zotero/firefox-esr-140-bin.nix
+new file mode 100644
+index 0000000000000..34d52c78eeded
+--- /dev/null
++++ b/pkgs/by-name/zo/zotero/firefox-esr-140-bin.nix
+@@ -0,0 +1,150 @@
++# Prebuilt Firefox ESR 140 used as the runtime for Zotero.
++# Adapted from pkgs/applications/networking/browsers/firefox-bin/default.nix.
++{
++  lib,
++  stdenv,
++  fetchurl,
++  wrapGAppsHook3,
++  autoPatchelfHook,
++  alsa-lib,
++  curl,
++  dbus-glib,
++  gtk3,
++  libxtst,
++  libva,
++  pciutils,
++  pipewire,
++  adwaita-icon-theme,
++  patchelfUnstable, # have to use patchelfUnstable to support --no-clobber-old-sections
++  applicationName ? "Firefox ESR",
++  undmg,
++}:
++
++let
++
++  version = "140.17.0esr";
++
++  binaryName = "firefox";
++
++  # Hashes from https://archive.mozilla.org/pub/firefox/releases/${version}/SHA256SUMS
++  sources = {
++    x86_64-linux = {
++      url = "mirror://mozilla/firefox/releases/${version}/linux-x86_64/en-US/firefox-${version}.tar.xz";
++      hash = "sha256-htBJBwrYC3TY5nR5PiLSiSO0p6HaBrTWVAL5HGehAxQ=";
++    };
++    aarch64-linux = {
++      url = "mirror://mozilla/firefox/releases/${version}/linux-aarch64/en-US/firefox-${version}.tar.xz";
++      hash = "sha256-3VefSEBacGXw9kPdtxqN4PSKnZhMJ4Pe4soXMIGFAIQ=";
++    };
++    i686-linux = {
++      url = "mirror://mozilla/firefox/releases/${version}/linux-i686/en-US/firefox-${version}.tar.xz";
++      hash = "sha256-m1XL2UojOr8VjwrbJz5YvDS/3hQPTsdx2qwDMd0ZFy4=";
++    };
++    aarch64-darwin = {
++      url = "mirror://mozilla/firefox/releases/${version}/mac/en-US/Firefox%20${version}.dmg";
++      hash = "sha256-5GhK/m8tND/3y8AZ7v84OpMINuEWpkB7krCUG5ZJSpc=";
++    };
++  };
++
++  source =
++    sources.${stdenv.hostPlatform.system}
++      or (throw "firefox-esr-140-bin: unsupported system ${stdenv.hostPlatform.system}");
++
++  pname = "firefox-esr-140-bin-unwrapped";
++in
++
++stdenv.mkDerivation {
++  inherit pname version;
++
++  src = fetchurl source;
++
++  sourceRoot = lib.optional stdenv.hostPlatform.isDarwin ".";
++
++  nativeBuildInputs = [
++    wrapGAppsHook3
++  ]
++  ++ lib.optionals (!stdenv.hostPlatform.isDarwin) [
++    autoPatchelfHook
++    patchelfUnstable
++  ]
++  ++ lib.optionals stdenv.hostPlatform.isDarwin [
++    undmg
++  ];
++  buildInputs = lib.optionals (!stdenv.hostPlatform.isDarwin) [
++    gtk3
++    adwaita-icon-theme
++    alsa-lib
++    dbus-glib
++    libxtst
++  ];
++  runtimeDependencies = [
++    curl
++    pciutils
++  ]
++  ++ lib.optionals (!stdenv.hostPlatform.isDarwin) [
++    libva.out
++  ];
++  appendRunpaths = lib.optionals (!stdenv.hostPlatform.isDarwin) [
++    "${pipewire}/lib"
++  ];
++  # Firefox uses "relrhack" to manually process relocations from a fixed offset
++  patchelfFlags = [ "--no-clobber-old-sections" ];
++
++  # don't break code signing
++  dontFixup = stdenv.hostPlatform.isDarwin;
++
++  installPhase =
++    if stdenv.hostPlatform.isDarwin then
++      ''
++        mkdir -p $out/Applications
++        mv Firefox*.app "$out/Applications/${applicationName}.app"
++      ''
++    else
++      ''
++        mkdir -p "$prefix/lib/firefox-bin-${version}"
++        cp -r * "$prefix/lib/firefox-bin-${version}"
++
++        mkdir -p "$out/bin"
++        ln -s "$prefix/lib/firefox-bin-${version}/firefox" "$out/bin/${binaryName}"
++      '';
++
++  passthru = {
++    inherit applicationName binaryName;
++    libName = "firefox-bin-${version}";
++    withFFmpeg = true;
++    withGSSAPI = true;
++    gtk3 = gtk3;
++  };
++
++  meta = {
++    changelog = "https://www.firefox.com/en-US/firefox/${lib.removeSuffix "esr" version}/releasenotes/";
++    description = "Mozilla Firefox, free web browser (binary package)";
++    homepage = "https://www.mozilla.org/firefox/";
++    license = lib.licenses.mkLicense {
++      shortName = "firefox";
++      fullName = "Firefox Terms of Use";
++      url = "https://www.mozilla.org/about/legal/terms/firefox/";
++      # "You Are Responsible for the Consequences of Your Use of Firefox"
++      # (despite the heading, not an indemnity clause) states the following:
++      #
++      # > You agree that you will not use Firefox to infringe anyone’s rights
++      # > or violate any applicable laws or regulations.
++      # >
++      # > You will not do anything that interferes with or disrupts Mozilla’s
++      # > services or products (or the servers and networks which are connected
++      # > to Mozilla’s services).
++      #
++      # This conflicts with FSF freedom 0: "The freedom to run the program as
++      # you wish, for any purpose". (Why should Mozilla be involved in
++      # instances where you break your local laws just because you happen to
++      # use Firefox whilst doing it?)
++      free = false;
++      redistributable = true; # since MPL-2.0 still applies
++    };
++    sourceProvenance = with lib.sourceTypes; [ binaryNativeCode ];
++    platforms = builtins.attrNames sources;
++    hydraPlatforms = [ ];
++    maintainers = with lib.maintainers; [ mynacol ];
++    mainProgram = binaryName;
++  };
++}
+diff --git a/pkgs/by-name/zo/zotero/package.nix b/pkgs/by-name/zo/zotero/package.nix
+index 696b04885d58d..fd5722b14aa7c 100644
+--- a/pkgs/by-name/zo/zotero/package.nix
++++ b/pkgs/by-name/zo/zotero/package.nix
+@@ -4,6 +4,7 @@
+   fetchFromGitHub,
+   buildNpmPackage,
+   darwin,
++  callPackage,
+   nodejs_22,
+   perl,
+   python3,
+@@ -15,7 +16,6 @@
+   pkg-config,
+   pango,
+   giflib,
+-  firefox-esr-153-unwrapped,
+   makeDesktopItem,
+   copyDesktopItems,
+   libGL,
+@@ -32,6 +32,8 @@ let
+   # note-editor needs nodejs 22. Any newer version fails to build zotero's fork of @benrbray/prosemirror-math during npm install.
+   nodejs = nodejs_22;
+ 
++  firefox = callPackage ./firefox-esr-140-bin.nix { };
++
+   pname = "zotero";
+   version = "10.0.4";
+ 
+@@ -253,10 +255,10 @@ buildNpmPackage (finalAttrs: {
+       mkdir -p app/xulrunner/
+     ''
+     + lib.optionalString stdenv.hostPlatform.isDarwin ''
+-      cp -r "${firefox-esr-153-unwrapped}/Applications/Firefox ESR.app" app/xulrunner/Firefox.app
++      cp -r "${firefox}/Applications/Firefox ESR.app" app/xulrunner/Firefox.app
+     ''
+     + lib.optionalString (!stdenv.hostPlatform.isDarwin) ''
+-      cp -r "${firefox-esr-153-unwrapped}/lib/firefox" "app/xulrunner/firefox-${stdenv.hostPlatform.parsed.kernel.name}-${
++      cp -r "${firefox}/lib/${firefox.libName}" "app/xulrunner/firefox-${stdenv.hostPlatform.parsed.kernel.name}-${
+         lib.replaceString "aarch64" "arm64" stdenv.hostPlatform.parsed.cpu.name
+       }"
+     ''

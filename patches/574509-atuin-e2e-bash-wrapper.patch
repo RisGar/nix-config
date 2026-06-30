@@ -1,0 +1,72 @@
+From 1304fdf1d8bf1bb41681b4d7e7a049ffb70f8bc3 Mon Sep 17 00:00:00 2001
+From: zimbatm <zimbatm@zimbatm.com>
+Date: Fri, 16 Oct 2026 09:41:22 +0000
+Subject: [PATCH] atuin: hand NOSYSBASHRC to the e2e bash through
+ ATUIN_E2E_BASH
+
+The test harness clears the environment before it starts the shell
+(FreshEnv::env_vars and PtyShell::spawn in crates/atuin/tests/common), so
+the NOSYSBASHRC from preCheck never reached bash, and the e2e tests still
+failed on unsandboxed darwin builds.
+
+ATUIN_E2E_BASH is read before the environment is cleared, so point it at
+a wrapper that sets NOSYSBASHRC and execs bash. The wrapper is named bash
+because the pty proxy picks the shell integration from the file name.
+
+Use writableTmpDirAsHomeHook for HOME, as suggested in review.
+
+Assisted-by: Claude Code (claude-opus-5)
+---
+ pkgs/by-name/at/atuin/package.nix | 25 ++++++++++++++++---------
+ 1 file changed, 16 insertions(+), 9 deletions(-)
+
+diff --git a/pkgs/by-name/at/atuin/package.nix b/pkgs/by-name/at/atuin/package.nix
+index d234ae79769dc..f096dea719a69 100644
+--- a/pkgs/by-name/at/atuin/package.nix
++++ b/pkgs/by-name/at/atuin/package.nix
+@@ -11,6 +11,8 @@
+   pkg-config,
+   rustPlatform,
+   stdenv,
++  writableTmpDirAsHomeHook,
++  writeShellScriptBin,
+ }:
+ 
+ rustPlatform.buildRustPackage (finalAttrs: {
+@@ -54,6 +56,7 @@ rustPlatform.buildRustPackage (finalAttrs: {
+     bashInteractive
+     gitMinimal
+     ncurses
++    writableTmpDirAsHomeHook
+   ];
+ 
+   postInstall = lib.optionalString (stdenv.buildPlatform.canExecute stdenv.hostPlatform) ''
+@@ -74,15 +77,19 @@ rustPlatform.buildRustPackage (finalAttrs: {
+     "--skip=multi_user_test"
+   ];
+ 
+-  preCheck = ''
+-    export HOME=$(mktemp -d)
+-    # The e2e tests start an interactive bash, which sources the host's
+-    # /etc/bashrc when the build is not sandboxed (the darwin default).
+-    # The nix-darwin config resets PATH, so if the user has atuin installed,
+-    # the shell integration runs the system atuin instead of the one currently building
+-    # and no output is captured.
+-    export NOSYSBASHRC=1
+-  '';
++  # The e2e tests start an interactive bash, which sources the host's
++  # /etc/bashrc when the build is not sandboxed (the darwin default).
++  # The nix-darwin config resets PATH, so if the user has atuin installed,
++  # the shell integration runs the system atuin instead of the one currently building
++  # and no output is captured.
++  # The test harness clears the environment before it starts the shell, so
++  # NOSYSBASHRC has to be set by the shell it is given. It must be named bash:
++  # the pty proxy picks the shell integration from the file name.
++  env.ATUIN_E2E_BASH = lib.getExe (
++    writeShellScriptBin "bash" ''
++      NOSYSBASHRC=1 exec ${lib.getExe bashInteractive} "$@"
++    ''
++  );
+ 
+   __darwinAllowLocalNetworking = true;
+ 

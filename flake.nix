@@ -22,6 +22,30 @@
     }:
     let
       inherit (nixpkgs) lib;
+
+      # Upstream fixes we depend on, carried as the patches of the GitHub PRs
+      # (vendored in patches/) until nixos-unstable ships them. Delete an entry
+      # as soon as the channel has it.
+      patches = [
+        ./patches/573101-go-mockery-3.8.1.patch # TODO: https://nixpk.gs/pr-tracker.html?pr=573101
+        ./patches/572466-zotero-firefox-esr-140.patch # TODO: https://nixpk.gs/pr-tracker.html?pr=572466
+        # e2e tests start an interactive bash that sources /etc/bashrc (unsandboxed
+        # darwin builds), which resets PATH and makes the shell integration run the
+        # host's atuin instead of the one under test
+        ./patches/574509-atuin-e2e-nosysbashrc.patch # TODO: https://nixpk.gs/pr-tracker.html?pr=574509
+        ./patches/574509-atuin-e2e-bash-wrapper.patch # TODO: https://nixpk.gs/pr-tracker.html?pr=574509
+      ];
+
+      # The pinned nixpkgs with the patches above applied. It is applied to the
+      # darwin configuration only, since `patch` runs with the target system's
+      # stdenv and a machine cannot realise another platform's tree.
+      nixpkgs-patched =
+        system:
+        (import nixpkgs { inherit system; }).applyPatches {
+          name = "nixpkgs-patched";
+          src = nixpkgs;
+          inherit patches;
+        };
     in
     {
       # Build darwin flake using:
@@ -36,6 +60,7 @@
           ./hosts/macbook
 
           {
+            nixpkgs.source = nixpkgs-patched "aarch64-darwin"; # pending nixpkgs PRs, see patches/
             nix.registry.nixpkgs.flake = nixpkgs; # Pin flake so nix3 commands use system nixpkgs
             nix.nixPath = [ "nixpkgs=${nixpkgs.outPath}" ]; # pin nix path so nix2 commands use system nixpkgs
 
