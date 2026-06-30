@@ -6,7 +6,7 @@
   ...
 }:
 let
-  autoStartTmux = true;
+  autoStartTmux = false;
   autoStartFastfetch = false;
 in
 {
@@ -28,9 +28,6 @@ in
     nixtree = "${lib.getExe pkgs.nix-tree} --derivation \"${config.vars.systemFlake}#darwinConfigurations.Rishabs-MacBook-Pro.config.system.build.toplevel\"";
 
     spotify-dlp = "${lib.getExe pkgs.yt-dlp} -f \"ba[ext=m4a]\" -x --audio-format m4a --embed-thumbnail --embed-metadata --sponsorblock-remove music_offtopic -o \"~/Music/Spotify/%(artist,uploader)s - %(title)s.%(ext)s\"";
-
-    homelab-reload = "${lib.getExe pkgs.nixos-rebuild} switch --flake ${config.vars.systemFlake}#Rishabs-Homelab --target-host 192.168.178.42 --build-host 192.168.178.42 --sudo --no-reexec --use-substitutes";
-    psa-reload = "NIX_SSHOPTS='-p 60204' ${lib.getExe pkgs.nixos-rebuild} switch --flake ${config.xdg.userDirs.projects}/psa#vmpsateam02-04 --target-host root@psa.in.tum.de --build-host root@psa.in.tum.de --sudo --no-reexec --use-substitutes";
   };
 
   home.sessionPath = [
@@ -53,8 +50,6 @@ in
     PAGER = lib.getExe pkgs.less;
 
     # MACOSX_DEPLOYMENT_TARGET = 15;
-
-    HOMEBREW_BAT = 1;
 
     # Force programs to use XDG dirs
     OPAMROOT = "${config.xdg.dataHome}/opam";
@@ -82,16 +77,12 @@ in
 
     shellInit = ''
       set -gx CONTEXT7_API_KEY (string trim < ${config.sops.secrets.context7.path})
-      set -gx OPENROUTER_API_KEY (string trim < ${config.sops.secrets.openrouter.path})
 
       set fish_cursor_default block blink
       set fish_cursor_insert line blink
       set fish_cursor_replace_one underscore blink
       set fish_cursor_replace underscore blink
       set fish_cursor_external line blink
-
-      # bind -M visual -m default y "fish_clipboard_copy; commandline -f end-selection repaint-mode"
-      # bind p forward-char "commandline -i ( pbpaste; echo )[1]" # TODO
     '';
 
     # Autostart tmux if enabled
@@ -116,10 +107,27 @@ in
         '';
       };
 
+      homelab-reload = {
+        description = "reloads homelab and diffs with dix";
+        body = ''
+          set -lx NIX_SSHOPTS "-o ControlMaster=auto -o ControlPath=/tmp/ssh_mux_%h_%p_%r -o ControlPersist=10m"
+          set -l ssh_cmd ssh -o ControlMaster=auto -o ControlPath=/tmp/ssh_mux_%h_%p_%r -o ControlPersist=10m
+          set -l old_sys ($ssh_cmd homelab readlink /run/current-system)
+          ${lib.getExe pkgs.nixos-rebuild} switch --flake ${config.vars.systemFlake}#Rishabs-Homelab --target-host homelab --build-host homelab --sudo --no-reexec --use-substitutes --log-format internal-json -v $argv |& ${lib.getExe pkgs.nix-output-monitor} --json
+          if test -n "$old_sys"
+            $ssh_cmd homelab nix run nixpkgs#dix -- --color always $old_sys /run/current-system
+          end
+        '';
+      };
+
       reload = {
         description = "reloads nix-darwin";
         body = ''
-          sudo ${lib.getExe osConfig.system.build.darwin-rebuild} switch -I ${config.vars.systemFlake}#${config.vars.hostname} --log-format internal-json $argv |& ${lib.getExe pkgs.nix-output-monitor} --json
+          set -l old_sys (readlink /run/current-system)
+          sudo ${lib.getExe osConfig.system.build.darwin-rebuild} switch -I ${config.vars.systemFlake}#${config.vars.hostname} --log-format internal-json -v $argv |& ${lib.getExe pkgs.nix-output-monitor} --json
+          if test -n "$old_sys"
+            ${lib.getExe pkgs.dix} $old_sys /run/current-system
+          end
           ghostty +validate-config
           ${lib.getExe config.programs.tmux.package} source-file ~/.config/tmux/tmux.conf
           source ~/.config/fish/config.fish
@@ -145,7 +153,7 @@ in
       starship_transient_prompt_func = {
         body =
           if config.programs.starship.enable then
-            "${lib.getExe config.programs.starship.package} module character"
+            "${lib.getExe' config.programs.starship.package "starship"} module character"
           else
             "";
 
@@ -153,7 +161,7 @@ in
       starship_transient_rprompt_func = {
         body =
           if config.programs.starship.enable then
-            "${lib.getExe config.programs.starship.package} module time"
+            "${lib.getExe' config.programs.starship.package "starship"} module time"
           else
             "";
       };
@@ -163,6 +171,11 @@ in
         body = ''
           fish_default_key_bindings -M insert
           fish_vi_key_bindings --no-erase insert
+
+          # Vim bindings for system clipboard
+          bind -M visual -m default y 'fish_clipboard_copy; commandline -f end-selection repaint-mode'
+          bind -M default p 'commandline -f forward-char; fish_clipboard_paste'
+          bind -M default P 'fish_clipboard_paste'
         '';
       };
     };
@@ -225,11 +238,20 @@ in
     enable = true;
     enableTransience = true;
     settings = fromTOML (builtins.readFile ./starship.toml);
+    package =
+      let
+        extraPackages = with pkgs; [ starship-jj ];
+      in
+      pkgs.symlinkJoin {
+        name = "starship";
+        paths = [ pkgs.starship ];
+        nativeBuildInputs = [ pkgs.makeWrapper ];
+        postBuild = ''
+          wrapProgram $out/bin/starship \
+            --prefix PATH : ${lib.makeBinPath extraPackages}
+        '';
+      };
   };
-
-  home.packages = with pkgs; [
-    starship-jj
-  ];
 
   xdg.configFile."fish/themes/stylix.theme".text = with config.lib.stylix.colors; ''
     # Syntax Highlighting Colors
