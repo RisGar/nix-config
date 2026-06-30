@@ -1,7 +1,9 @@
 # Place a copy of this config to ~/.aerospace.toml
 # After that, you can edit ~/.aerospace.toml to your liking
 
-start-at-login = true
+start-at-login = false
+
+config-version = 2
 
 # Normalizations. See: https://nikitabobko.github.io/AeroSpace/guide#normalization
 enable-normalization-flatten-containers = true
@@ -25,13 +27,14 @@ on-focused-monitor-changed = ["move-mouse monitor-lazy-center"]
 # You can effectively turn off macOS "Hide application" (cmd-h) feature by toggling this flag
 # Useful if you don't use this macOS feature, but accidentally hit cmd-h or cmd-alt-h key
 # Also see: https://nikitabobko.github.io/AeroSpace/goodies#disable-hide-app
-automatically-unhide-macos-hidden-apps = false
+automatically-unhide-macos-hidden-apps = true 
+
+persistent-workspaces = ["1", "2", "t", "w", "c", "d"]
 
 # Possible values: (qwerty|dvorak|colemak)
 # See https://nikitabobko.github.io/AeroSpace/guide#key-mapping
 [key-mapping]
 preset = "qwerty"
-
 
 # Gaps between windows (inner-*) and between monitor edges (outer-*).
 # Possible values:
@@ -60,7 +63,12 @@ if.app-id = "com.IdeaPunch.ColorSlurp"
 run = ["layout floating"]
 
 [[on-window-detected]]
-if.window-title-regex-substring= "Sending Message"
+if.app-id = "org.nixos.thunderbird"
+if.window-title-regex-substring = "Sending Message"
+run = ["layout floating"]
+
+[[on-window-detected]]
+if.app-id = "io.mpv"
 run = ["layout floating"]
 
 
@@ -75,6 +83,10 @@ run = ["move-node-to-workspace t"]
 [[on-window-detected]]
 if.app-id = "md.obsidian"
 run = ["move-node-to-workspace d"]
+
+[[on-window-detected]]
+if.app-id = "com.logseq.logseq"
+run = ["move-node-to-workspace c"]
 
 
 [workspace-to-monitor-force-assignment]
