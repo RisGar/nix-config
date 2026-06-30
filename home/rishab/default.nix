@@ -1,5 +1,4 @@
 {
-  agenix,
   config,
   direnv-instant,
   lib,
@@ -19,18 +18,19 @@
     zen-browser.homeModules.twilight
 
     ./agents
-    ./wm
     ./browser
+    ./colours
     ./fetch
-    ./shell
+    ./files
     ./fuzzy
-    ./vcs
     ./langs
+    ./mail
+    ./pdf
+    ./shell
     ./ssh
     ./tmux
-    ./files
-    ./pdf
-    ./colours
+    ./vcs
+    ./wm
   ];
 
   options = {
