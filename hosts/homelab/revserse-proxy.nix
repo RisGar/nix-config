@@ -99,6 +99,7 @@
         };
       };
     };
+    credentialsFile = config.age.secrets.rathole.path;
   };
 
   assertions = [

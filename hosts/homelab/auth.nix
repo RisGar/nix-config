@@ -1,4 +1,3 @@
-{ config, ... }:
 { config, pkgs, ... }:
 {
   ports.pocket-id = 1441;
@@ -40,7 +39,7 @@
       UI_BACKGROUNDIMAGE = "/background-custom.jpg";
 
     };
-    # environmentFile = config.age.secrets.tinyauth.path;
+    environmentFile = config.age.secrets.tinyauth.path;
   };
 
   services.caddy.virtualHosts = {

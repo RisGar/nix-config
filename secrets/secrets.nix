@@ -4,12 +4,17 @@ let
 
   # Host Keys (can decrypt only what they need)
   rishabs-homelab = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIF+74XpLMdeUesLv6mGZIdqItpITQexLj9IVdeuzAnV5";
-  # vps = "ssh-ed25519 ..."; # TODO: Add your VPS public key here
+  rishabs-vps = "ssh-ed25519 ...";
 
   # Groups
   homelab_keys = [
     rishabs-macbook
     rishabs-homelab
+  ];
+
+  vps_keys = [
+    rishabs-macbook
+    rishabs-vps
   ];
 in
 {
@@ -21,6 +26,8 @@ in
   "pocket-id.age".publicKeys = homelab_keys;
   "tandoor.age".publicKeys = homelab_keys;
   "tavily.age".publicKeys = homelab_keys;
+  "tinyauth.age".publicKeys = homelab_keys;
+  "rathole.age".publicKeys = homelab_keys;
   "user-rishab.age".publicKeys = homelab_keys;
   "user-root.age".publicKeys = homelab_keys;
   "wg-private.age".publicKeys = homelab_keys;

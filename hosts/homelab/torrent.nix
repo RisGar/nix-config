@@ -114,6 +114,7 @@ in
 
     handle @has_auth {
       basicauth argon2id {
+        rishab $argon2id$v=19$m=47104,t=1,p=1$gBT09qm8aNM7Hr4SQZENHg$3CAoTQzS3BDoc/7XthdS0T61tkKGj/GYlMa26kf8Pfg
       }
       reverse_proxy 192.168.100.11:${toString config.ports.transmission}
     }
