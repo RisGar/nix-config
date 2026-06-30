@@ -162,8 +162,19 @@ in
   services.transmission = {
     enable = true;
     openRPCPort = true;
+    # the download dir lives on the external disk and is not managed by nix;
+    # transmission's prestart chowns it (and .incomplete below) to
+    # transmission:transmission so the move out of .incomplete can create
+    # directories there (setgid, and rishab is a member of the transmission group)
+    downloadDirPermissions = "2775";
     settings = {
       download-dir = "/mnt/external/Library";
+
+      # keep partial downloads on the external disk: finishing a torrent is then
+      # a rename inside one filesystem instead of copying it off the (small, and
+      # currently full) root disk
+      incomplete-dir = "/mnt/external/Library/.incomplete";
+      incomplete-dir-enabled = true;
 
       # Bind to all interfaces inside the namespace
       rpc-bind-address = "0.0.0.0";
@@ -180,9 +191,20 @@ in
     };
   };
 
+  # the module's transmission-setup.service is what creates download-dir and
+  # .incomplete (mode downloadDirPermissions), but it only declares Before= and
+  # PartOf=, so nothing ever starts it. Without it BindPaths= on a directory
+  # that doesn't exist yet fails the unit with 226/NAMESPACE, so pull it in
+  # explicitly and make it wait for the external disk before creating anything.
+  systemd.services.transmission-setup.unitConfig.RequiresMountsFor = [ "/mnt/external" ];
+
   systemd.services.transmission = {
     # wantedBy = [ "multi-user.target" ];
-    after = [ "nordvpn-connect.service" ];
+    wants = [ "transmission-setup.service" ];
+    after = [
+      "nordvpn-connect.service"
+      "transmission-setup.service"
+    ];
     bindsTo = [ "nordvpn-connect.service" ];
     serviceConfig = {
       NetworkNamespacePath = "/var/run/netns/${vpnNetns}";
