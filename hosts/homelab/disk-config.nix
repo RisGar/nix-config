@@ -1,73 +1,51 @@
 {
   disko.devices = {
-    disk.main = {
+    disk.disk1 = {
       device = "/dev/sda";
       type = "disk";
       content = {
         type = "gpt";
         partitions = {
+          boot = {
+            name = "boot";
+            size = "1M";
+            type = "EF02";
+          };
           esp = {
-            size = "512M";
+            name = "ESP";
+            size = "500M";
             type = "EF00";
-            priority = 2;
             content = {
               type = "filesystem";
               format = "vfat";
               mountpoint = "/boot";
             };
           };
-          zfs = {
+          root = {
+            name = "root";
             size = "100%";
             content = {
-              type = "zfs";
-              pool = "zroot";
+              type = "lvm_pv";
+              vg = "pool";
             };
           };
         };
       };
     };
-
-    zpool = {
-      zroot = {
-        type = "zpool";
-
-        rootFsOptions = {
-          compression = "zstd";
-          xattr = "sa";
-          acltype = "posixacl";
-          atime = "off";
-        };
-
-        options = {
-          ashift = "12";
-          autotrim = "on";
-        };
-
-        datasets = {
-          "ephemeral" = {
-            type = "zfs_fs";
-            mountpoint = "none";
-          };
-          "ephemeral/root" = {
-            type = "zfs_fs";
-            mountpoint = "/";
-          };
-          "ephemeral/nix" = {
-            type = "zfs_fs";
-            mountpoint = "/nix";
-          };
-
-          "persistent" = {
-            type = "zfs_fs";
-            mountpoint = "none";
-          };
-          "persistent/data" = {
-            type = "zfs_fs";
-            mountpoint = "/var/lib";
-          };
-          "persistent/home" = {
-            type = "zfs_fs";
-            mountpoint = "/home";
+    lvm_vg = {
+      pool = {
+        type = "lvm_vg";
+        lvs = {
+          root = {
+            size = "100%FREE";
+            content = {
+              type = "filesystem";
+              format = "ext4";
+              mountpoint = "/";
+              mountOptions = [
+                "defaults"
+              ];
+            };
           };
         };
       };
