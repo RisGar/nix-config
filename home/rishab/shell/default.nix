@@ -147,19 +147,6 @@ in
         '';
       };
 
-      fix-atuin = {
-        description = "fixes atuin by killing hanging processes and restarting the daemon";
-        body = ''
-          echo "Killing hanging atuin processes..."
-          pkill -9 atuin 2>/dev/null
-          echo "Restarting atuin daemon..."
-          launchctl stop org.nix-community.home.atuin-daemon 2>/dev/null
-          launchctl start org.nix-community.home.atuin-daemon
-          sleep 1
-          atuin daemon status
-        '';
-      };
-
       # Fastfetch on greeting
       fish_greeting = {
         body = if autoStartFastfetch then lib.getExe config.programs.fastfetch.package else "";
@@ -221,7 +208,28 @@ in
   programs.atuin = {
     enable = true;
     forceOverwriteSettings = true;
-    daemon.enable = true;
+    settings = {
+      daemon = {
+        enabled = true;
+        # Manage daemon through cli as home-manager option doesn't work well on darwin
+        autostart = true;
+      };
+      dialect = "uk";
+      style = "auto";
+      enter_accept = true;
+      ui.colums = [
+        "duration"
+        "time"
+        {
+          type = "directory";
+          expand = true;
+        }
+        {
+          type = "command";
+          expand = false;
+        }
+      ];
+    };
   };
 
   programs.starship = {
