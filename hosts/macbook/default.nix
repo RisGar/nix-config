@@ -1,16 +1,14 @@
 {
-  agenix,
   lib,
-  nixln-edit,
-  nvim-config,
   pkgs,
+  nixpkgs-overlay,
   self,
-  print-cli-rs,
   ...
 }:
 {
   imports = [
     ./brew.nix
+    ./macos-apps.nix
   ];
 
   nixpkgs.config = {
@@ -21,74 +19,14 @@
   nixpkgs.hostPlatform = "aarch64-darwin";
 
   nixpkgs.overlays = [
-    agenix.overlays.default
-
+    nixpkgs-overlay.overlays.default
     (final: prev: {
 
-      thaw = prev.callPackage ../../pkgs/thaw.nix { };
-      mole-mac = prev.callPackage ../../pkgs/mole-mac.nix { };
-      dragterm = prev.callPackage ../../pkgs/dragterm.nix { };
-      walavave-trash-cli = prev.callPackage ../../pkgs/walavave-trash-cli.nix { };
-      create-thesis = prev.callPackage ../../pkgs/create-thesis.nix { };
-      ekctl = prev.callPackage ../../pkgs/ekctl.nix { };
-
-      logseq = (
-        let
-          pkgs' = import (fetchTarball {
-            url = "https://github.com/NixOS/nixpkgs/archive/ec0c722e017dfccbb2f66a8aafbe003320266d33.tar.gz";
-            sha256 = "0jws2i94asr1yish76799gmyw51dj98n8badq3snc8prifmsd3a5";
-          }) { system = pkgs.stdenv.hostPlatform.system; };
-        in
-        pkgs'.logseq
-      );
-
-      signal-desktop = prev.signal-desktop.override {
-        withAppleEmojis = true;
-      };
-
-      nvim = prev.callPackage nvim-config {
-        jdks = with prev; [
-          jdk17
-          jdk21
-          jdk25
-        ];
-      };
-
-      print-cli-rs = prev.callPackage print-cli-rs { };
-      nixln-edit = prev.callPackage nixln-edit { };
-
-      yaziPlugins = prev.yaziPlugins // {
-        macos-trash = prev.callPackage (
-          {
-            fetchFromGitHub,
-          }:
-          prev.yaziPlugins.mkYaziPlugin {
-            pname = "macos-trash.yazi";
-            version = "unstable-2026-06-22";
-
-            installPhase = ''
-              runHook preInstall
-
-              cp -r . $out
-
-              runHook postInstall
-            '';
-
-            src = fetchFromGitHub {
-              owner = "walavave";
-              repo = "macos-trash.yazi";
-              rev = "130e6dd80d544b97016c877251dc7d51a0aac5a0";
-              hash = "sha256-A3nUll80LWWZcbX+2GjGUQA5lMbQPBwYKfOT+Sir24k=";
-            };
-
-            meta = {
-              description = "macOS trash plugin for Yazi";
-              homepage = "https://github.com/walavave/macos-trash.yazi";
-              license = lib.licenses.mit;
-            };
-          }
-        ) { };
-      };
+      # TODO:
+      nixos-rebuild-ng = prev.nixos-rebuild-ng.overrideAttrs (old: {
+        doCheck = false;
+        doInstallCheck = false;
+      });
     })
   ];
 
@@ -108,6 +46,7 @@
     settings = {
       trusted-users = [ "@admin" ];
       auto-optimise-store = true;
+      log-format = "multiline-with-logs";
       sandbox = true;
 
       experimental-features = [
@@ -173,10 +112,10 @@
           app = "/Applications/Zen Browser.app";
         }
         {
-          app = "/Applications/Ghostty.app";
+          app = "${pkgs.ghostty-bin}/Applications/Ghostty.app";
         }
         {
-          app = "/Applications/Spotify.app";
+          app = "${pkgs.spotify}/Applications/Spotify.app";
         }
         {
           app = "${pkgs.obsidian}/Applications/Obsidian.app";
@@ -185,13 +124,10 @@
           app = "${pkgs.logseq}/Applications/Logseq.app";
         }
         {
-          app = "/System/Applications/Mail.app";
+          app = "${pkgs.thunderbird}/Applications/Thunderbird.app";
         }
         {
-          app = "/System/Applications/Calendar.app";
-        }
-        {
-          app = "/Applications/DEVONthink 3.app";
+          app = "${pkgs.devonthink}/Applications/DEVONthink 3.app";
         }
         {
           app = "${pkgs.signal-desktop}/Applications/Signal.app";
@@ -206,14 +142,11 @@
           app = "${pkgs.vesktop}/Applications/Vesktop.app";
         }
         {
-          app = "${pkgs.cinny-desktop}/Applications/Cinny.app";
+          app = "${pkgs.lightning-matrix-client}/Applications/Lightning.app";
         }
         {
           app = "/Applications/Strongbox.app";
         }
-        # {
-        # app = "/Applications/Antigravity.app";
-        # }
       ];
     };
 
