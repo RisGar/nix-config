@@ -1,0 +1,6 @@
+# dropped-in content is unversioned; the module itself must stay tracked
+*
+!default.nix
+!files/
+files/*
+!files/.gitkeep
