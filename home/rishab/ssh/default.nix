@@ -41,6 +41,12 @@
         Hostname = "85.215.138.48";
         User = "root";
       };
+
+      "acn" = {
+        Hostname = "testbed.acn.net.cit.tum.de";
+        User = "u64829";
+        Port = 10022;
+      };
     };
   };
 }
