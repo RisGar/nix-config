@@ -1,7 +1,6 @@
 {
   mkStat,
   mkTimeseries,
-  okFailedMappings,
   ...
 }:
 let
@@ -49,7 +48,9 @@ in
     })
     (mkStat {
       title = "CPU load (1m / cores)";
-      expr = "100 * node_load1 / count(node_cpu_seconds_total{mode=\"idle\"})";
+      # scalar(): an ungrouped count() has an empty labelset and would not match
+      # node_load1{instance,job}, which made this panel render "no data"
+      expr = "100 * node_load1 / scalar(count(node_cpu_seconds_total{mode=\"idle\"}))";
       x = 12;
       y = 0;
       unit = "percent";
@@ -70,10 +71,29 @@ in
     })
     (mkStat {
       title = "Disk health";
-      expr = "min(smartctl_device_smart_status)";
+      # Neither disk exposes SMART health here: sda is a QEMU/virtio disk and sdb
+      # is USB (the bridge doesn't pass SMART through), so smart_status is never
+      # emitted. smartctl's exit status is what is actually available.
+      expr = "max(smartctl_device_smartctl_exit_status)";
       x = 18;
       y = 0;
-      mappings = okFailedMappings;
+      mappings = [
+        {
+          type = "value";
+          options = {
+            "0" = {
+              text = "ok";
+              color = "green";
+              index = 0;
+            };
+            "1" = {
+              text = "smartctl failed";
+              color = "red";
+              index = 1;
+            };
+          };
+        }
+      ];
       noValue = "no SMART data";
     })
     (mkTimeseries {
@@ -88,12 +108,14 @@ in
       ];
     })
     (mkTimeseries {
-      title = "Disk temperature";
+      # no disk on this host reports a temperature (virtio + USB), I/O
+      # utilisation is the useful signal instead
+      title = "Disk I/O utilisation";
       y = 11;
-      unit = "celsius";
+      unit = "percent";
       targets = [
         {
-          expr = "smartctl_device_temperature{temperature_type=\"current\"}";
+          expr = "rate(node_disk_io_time_seconds_total{device=~\"sd[a-z]+\"}[5m]) * 100";
           legend = "{{device}}";
         }
       ];

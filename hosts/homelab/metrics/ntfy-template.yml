@@ -1,0 +1,35 @@
+# ntfy message template for Grafana alert notifications.
+# Installed as /etc/ntfy/templates/homelab.yml and used via ?template=homelab.
+#
+# ntfy's built-in "grafana" template prefixes emoji and forwards Grafana's raw
+# message, which is a label/value dump. This renders the alert annotations
+# directly instead: no emoji, one sentence per alert, severity as a footer.
+title: >-
+  {{- if eq .status "firing" -}}
+  Firing: {{ .commonLabels.alertname | default "homelab alert" }}
+  {{- else -}}
+  Resolved: {{ .commonLabels.alertname | default "homelab alert" }}
+  {{- end -}}
+message: |-
+  {{- $summaries := list -}}
+  {{- range .alerts -}}
+  {{- $summaries = append $summaries (.annotations.summary | default .labels.alertname) -}}
+  {{- end }}
+  {{- $distinct := uniq $summaries -}}
+  {{- range $distinct }}
+  {{ . }}
+  {{- end }}
+  {{- if gt (len .alerts) 1 }}
+
+  {{ len .alerts }} alerts in this group.
+  {{- end }}
+  {{- with .commonLabels.severity }}
+
+  Severity: {{ . }}
+  {{- end }}
+priority: >-
+  {{- if eq .commonLabels.severity "critical" -}}
+  4
+  {{- else -}}
+  3
+  {{- end -}}

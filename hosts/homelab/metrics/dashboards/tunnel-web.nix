@@ -84,43 +84,46 @@
       ];
     })
     (mkStat {
-      title = "Sites failing probe";
-      expr = "count(probe_success == 0)";
+      title = "5xx responses/s";
+      expr = "sum(rate(caddy_http_request_duration_seconds_count{code=~\"5..\"}[5m]))";
       x = 0;
       y = 4;
+      unit = "reqps";
       thresholds = [
         {
           color = "green";
-          value = null;
-        }
-        {
-          color = "red";
-          value = 1;
-        }
-      ];
-      noValue = "no probe yet";
-    })
-    (mkStat {
-      title = "Soonest TLS expiry";
-      expr = "min(probe_ssl_earliest_cert_expiry) - time()";
-      x = 6;
-      y = 4;
-      unit = "s";
-      thresholds = [
-        {
-          color = "red";
           value = null;
         }
         {
           color = "yellow";
-          value = 14 * 86400;
+          value = 0.01;
         }
         {
-          color = "green";
-          value = 30 * 86400;
+          color = "red";
+          value = 0.1;
         }
       ];
-      noValue = "no probe yet";
+      noValue = "no traffic";
+    })
+    (mkStat {
+      title = "Requests in flight";
+      expr = "max(caddy_http_requests_in_flight)";
+      x = 6;
+      y = 4;
+      thresholds = [
+        {
+          color = "green";
+          value = null;
+        }
+        {
+          color = "yellow";
+          value = 50;
+        }
+        {
+          color = "red";
+          value = 200;
+        }
+      ];
     })
     (mkStat {
       title = "Caddy requests/s";
@@ -160,16 +163,14 @@
       ];
     })
     (mkTimeseries {
-      title = "Probe status per site";
+      title = "Caddy responses by status code";
       y = 23;
       h = 8;
-      min = 0;
-      max = 1;
-      drawStyle = "points";
+      unit = "reqps";
       targets = [
         {
-          expr = "probe_success";
-          legend = "{{instance}}";
+          expr = "sum by (code) (rate(caddy_http_request_duration_seconds_count[5m]))";
+          legend = "{{code}}";
         }
       ];
     })

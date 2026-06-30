@@ -11,5 +11,10 @@ let
   };
 in
 {
-  services.grafana.provision.dashboards.settings = mkDashboardsProvisioning "homelab" dashboards;
+  services.grafana.provision.dashboards.settings = mkDashboardsProvisioning {
+    name = "homelab";
+    inherit dashboards;
+    # same folder the alert rules are provisioned into, so it is not empty
+    folder = "Homelab";
+  };
 }

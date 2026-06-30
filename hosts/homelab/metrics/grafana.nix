@@ -4,6 +4,11 @@
     socket = config.services.grafana.settings.server.socket;
   };
 
+  # Grafana creates the socket with UMask=0027, i.e. 0660 grafana:grafana, so
+  # Caddy can only connect if it is in that group — without this, every request
+  # to the metrics vhost dies with "dial unix ... connect: permission denied".
+  users.users.caddy.extraGroups = [ "grafana" ];
+
   services.grafana = {
     enable = true;
     settings = {
@@ -20,9 +25,10 @@
       "auth.generic_oauth" = {
         enabled = true;
         allow_sign_up = true;
-        # auto_login = true; name = "Pocket ID";
+        auto_login = true;
+        name = "Pocket ID";
         client_id = "9f9c6b4a-d46a-43ab-9a24-f376a0669a74";
-        # client_secret is loaded via EnvironmentFile
+        client_secret = "$__file{${config.sops.secrets."grafana/oidc-client-secret".path}}";
         scopes = "openid profile email groups";
         auth_url = "${config.services.pocket-id.settings.APP_URL}/authorize";
         token_url = "${config.services.pocket-id.settings.APP_URL}/api/oidc/token";
@@ -53,6 +59,4 @@
       ];
     };
   };
-
-  systemd.services.grafana.serviceConfig.EnvironmentFile = [ config.sops.secrets."grafana/env".path ];
 }
