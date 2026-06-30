@@ -80,6 +80,10 @@
     environment.systemPackages = with pkgs; [
       vim
       git
+      yazi
+      mediainfo
+      exiftool
+      aria2
     ];
 
     services.openssh = {
